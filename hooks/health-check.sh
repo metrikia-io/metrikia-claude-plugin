@@ -13,60 +13,30 @@ if [ ! -r "$CONTEXT_FILE" ]; then
   exit 0
 fi
 
-# 1. Check METRIKIA_API_KEY is set
-if [ -z "${METRIKIA_API_KEY:-}" ]; then
-  cat <<'MSG'
-# Metrikia Plugin — Configuration Required
+# Metrikia authenticates with OAuth 2.1 (no API key to configure). Claude Code
+# discovers the authorization server from the MCP endpoint and runs a one-time
+# browser sign-in on the first tool call. No METRIKIA_API_KEY is needed.
 
-`METRIKIA_API_KEY` is not set. The Metrikia MCP tools will not work.
-
-## Setup
-
-1. Generate an API key at https://app.metrikia.io/app/settings?group=advanced&section=api-webhooks (scope: `mcp:read`)
-2. Add to your shell profile:
-
-```bash
-export METRIKIA_API_KEY="mk_live_your_key_here"
-```
-
-3. Restart Claude Code
-MSG
-  exit 0
-fi
-
-# 2. Check curl availability
 if ! command -v curl &> /dev/null; then
   cat "$CONTEXT_FILE"
   echo ""
-  echo "> **Note:** \`curl\` not found — MCP connectivity check skipped. Install curl for automatic verification."
+  echo "> **Note:** \`curl\` not found. MCP reachability check skipped."
   exit 0
 fi
 
-# 3. Check MCP server connectivity
+# Reachability probe (no credentials). A 401 is EXPECTED: it carries the OAuth
+# discovery challenge that Claude Code follows. Anything 2xx/401 means the
+# server is up; only network/5xx errors warrant a warning.
 HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}" --max-time 3 \
-  -H "X-API-Key: ${METRIKIA_API_KEY}" \
   "https://mcp.metrikia.io/api/v1/mcp" 2>/dev/null) || HTTP_STATUS="000"
 
 case "$HTTP_STATUS" in
-  2*)
-    # Success — inject session context
+  2*|401)
     cat "$CONTEXT_FILE"
-    ;;
-  401|403)
-    cat <<'MSG'
-# Metrikia Plugin — Authentication Failed
-
-Your `METRIKIA_API_KEY` is invalid or has insufficient scopes.
-
-## Fix
-
-1. Verify your key at https://app.metrikia.io/app/settings?group=advanced&section=api-webhooks
-2. Ensure the key has at least `mcp:read` scope
-3. Update the environment variable and restart Claude Code
-MSG
+    echo ""
+    echo "> **Sign-in:** the first Metrikia tool call opens a browser to connect your account (OAuth). No API key required."
     ;;
   *)
-    # Timeout, network error, or unexpected status
     cat "$CONTEXT_FILE"
     echo ""
     echo "> **Warning:** Metrikia MCP server unreachable (HTTP $HTTP_STATUS). Tools may fail. Check your network connection."

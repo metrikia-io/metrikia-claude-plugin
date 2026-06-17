@@ -10,26 +10,23 @@ Metrikia is a SaaS platform that correlates ad investments (Meta, Google, TikTok
 
 ### From GitHub (recommended)
 
-```bash
-# Step 1: Set your API key
-export METRIKIA_API_KEY="mk_live_your_key_here"
-```
+No API key to configure. The plugin signs in with OAuth: the first time you call a Metrikia tool, your browser opens to connect your account, and the session renews automatically.
 
-Generate an API key in [Metrikia Settings -> API Keys](https://app.metrikia.io/app/settings?group=advanced&section=api-webhooks) with `mcp:read` scope. Add it to your shell profile (`~/.zshrc` / `~/.bashrc`).
-
-Then in Claude Code:
+In Claude Code:
 
 ```bash
-# Step 2: Add the marketplace
+# Step 1: Add the marketplace
 /plugin marketplace add BULDEE/metrikia-claude-plugin
 
-# Step 3: Install the plugin
+# Step 2: Install the plugin
 /plugin install metrikia@BULDEE-metrikia-claude-plugin
 
-# Step 4: Restart Claude Code
+# Step 3: Restart Claude Code
 exit
 claude
 ```
+
+On the first Metrikia tool call, a browser window opens. Sign in to Metrikia (if needed) and click **Authorize**. That is all: no key to paste, and access can be revoked at any time from your Metrikia settings.
 
 ### From Local Path
 
@@ -62,12 +59,9 @@ The plugin runs an automatic health check at startup. If you see **"Metrikia Plu
 
 ## Health Check
 
-At every session start, the plugin automatically verifies:
+At every session start, the plugin automatically verifies that the MCP server at `mcp.metrikia.io` is reachable. Authentication itself is handled by OAuth on the first tool call (a one-time browser sign-in), so there is no key to check.
 
-1. `METRIKIA_API_KEY` is set
-2. The MCP server at `mcp.metrikia.io` is reachable and the key is valid
-
-If something is wrong, you get a clear error message with instructions to fix it — no silent failures.
+If the server is unreachable, you get a clear warning with instructions, no silent failures.
 
 ## What's Inside
 
@@ -105,19 +99,19 @@ If something is wrong, you get a clear error message with instructions to fix it
 
 ## Examples
 
-### Simple — Quick Status Check
+### Simple - Quick Status Check
 
 > "How are my campaigns performing this week?"
 
 Claude uses `get_metrics` and `compare_performance` to fetch your real data and returns a summary with week-over-week trends. No dashboard navigation needed.
 
-### Simple — Lead Quality by Source
+### Simple - Lead Quality by Source
 
 > "Which ad platforms bring leads that actually close as deals?"
 
-Claude calls `list_leads`, `list_deals`, and `get_attribution_journey` to correlate CRM data with ad sources — something that normally requires exporting CSVs from multiple tools and joining them manually.
+Claude calls `list_leads`, `list_deals`, and `get_attribution_journey` to correlate CRM data with ad sources - something that normally requires exporting CSVs from multiple tools and joining them manually.
 
-### Intermediate — Weekly Report with Anomaly Detection
+### Intermediate - Weekly Report with Anomaly Detection
 
 > `/metrikia:weekly-report`
 
@@ -130,7 +124,7 @@ Generates a structured report in one shot:
 
 **What Claude Code alone can't do:** Access your live campaign data, calculate real MER across platforms, or detect anomalies based on your historical performance.
 
-### Intermediate — Creative Fatigue Analysis
+### Intermediate - Creative Fatigue Analysis
 
 > `/metrikia:creative-analysis`
 
@@ -142,22 +136,22 @@ Identifies which creatives are fatiguing and which are ready to scale:
 
 **What Claude Code alone can't do:** Access per-creative performance data, track frequency curves over time, or correlate creative performance with actual conversions.
 
-### Advanced — Full-Funnel Attribution Audit
+### Advanced - Full-Funnel Attribution Audit
 
 > "Compare Shapley vs last-click attribution for my Meta campaigns this quarter, then show me which channels are undervalued and recommend a budget reallocation"
 
 Claude chains multiple tools:
-1. `get_campaign_performance` — fetches Meta campaigns for the quarter
-2. `get_attribution_journey` — pulls multi-touch attribution (Shapley model)
-3. `compare_performance` — benchmarks against last-click model
-4. `get_budget_advice` — gets data-driven reallocation recommendations
-5. `ask_diana` — validates the strategy with Diana AI
+1. `get_campaign_performance` - fetches Meta campaigns for the quarter
+2. `get_attribution_journey` - pulls multi-touch attribution (Shapley model)
+3. `compare_performance` - benchmarks against last-click model
+4. `get_budget_advice` - gets data-driven reallocation recommendations
+5. `ask_diana` - validates the strategy with Diana AI
 
 Result: a complete analysis showing which channels get too much/too little budget based on their true contribution, with specific reallocation percentages.
 
 **What Claude Code alone can't do:** Run Shapley/Markov attribution models, access your cross-platform journey data, or calculate channel contribution across touchpoints.
 
-### Advanced — Pipeline-to-Revenue Correlation
+### Advanced - Pipeline-to-Revenue Correlation
 
 > `/metrikia:lead-pipeline` then "Cross-reference the top 3 lead sources with their average deal size and sales cycle length"
 
@@ -169,30 +163,30 @@ Claude performs end-to-end funnel analysis:
 
 **What Claude Code alone can't do:** Access your CRM pipeline data, correlate ad spend with deal outcomes, or calculate true customer acquisition cost across the full funnel.
 
-### Expert — Monday Morning Playbook
+### Expert - Monday Morning Playbook
 
 > "Give me my Monday morning playbook: what changed over the weekend, what needs immediate action, and what should I test this week"
 
 Claude orchestrates the full toolkit:
-1. `get_anomalies` — flags weekend changes (spend, performance shifts)
-2. `get_metrics` + `compare_performance` — weekend vs. weekday benchmarks
-3. `get_creative_report` — creative fatigue signals emerging
-4. `get_budget_advice` — reallocation opportunities from fresh data
-5. `list_leads` — new leads from weekend, quality assessment
-6. `ask_diana` — strategic priorities for the week
+1. `get_anomalies` - flags weekend changes (spend, performance shifts)
+2. `get_metrics` + `compare_performance` - weekend vs. weekday benchmarks
+3. `get_creative_report` - creative fatigue signals emerging
+4. `get_budget_advice` - reallocation opportunities from fresh data
+5. `list_leads` - new leads from weekend, quality assessment
+6. `ask_diana` - strategic priorities for the week
 
-Result: an actionable brief with 3 sections — **Urgent** (fix now), **Optimize** (improve this week), **Test** (new experiments to launch).
+Result: an actionable brief with 3 sections - **Urgent** (fix now), **Optimize** (improve this week), **Test** (new experiments to launch).
 
 ## Basic Workflow
 
 Skills chain together for comprehensive analysis:
 
-1. **Start broad** — `/metrikia:weekly-report` for the overall picture
-2. **Drill down** — `/metrikia:campaign-audit` on underperforming campaigns
-3. **Check creatives** — `/metrikia:creative-analysis` to find fatigue or winners
-4. **Understand journeys** — `/metrikia:attribution-deep-dive` for true channel value
-5. **Optimize** — `/metrikia:budget-optimizer` to reallocate based on findings
-6. **Monitor pipeline** — `/metrikia:lead-pipeline` to verify lead quality follows
+1. **Start broad** - `/metrikia:weekly-report` for the overall picture
+2. **Drill down** - `/metrikia:campaign-audit` on underperforming campaigns
+3. **Check creatives** - `/metrikia:creative-analysis` to find fatigue or winners
+4. **Understand journeys** - `/metrikia:attribution-deep-dive` for true channel value
+5. **Optimize** - `/metrikia:budget-optimizer` to reallocate based on findings
+6. **Monitor pipeline** - `/metrikia:lead-pipeline` to verify lead quality follows
 
 ## Configuration
 
@@ -206,8 +200,7 @@ The plugin prompts for these options when enabled:
 ## Requirements
 
 - [Claude Code](https://claude.ai/claude-code) 1.0.33 or later
-- Metrikia account with API key (`mcp:read` scope minimum)
-- `METRIKIA_API_KEY` environment variable set
+- A Metrikia account (you authorize access with a one-time browser sign-in, no API key needed)
 - `curl` (for automatic health check at startup)
 
 ## Support

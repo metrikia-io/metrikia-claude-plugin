@@ -2,43 +2,30 @@
 
 Security architecture for the Metrikia Claude Code plugin and MCP server integration. Covers authentication, authorization, data isolation, PII protection, rate limiting, and GDPR considerations.
 
-## API Key Authentication
+## OAuth Authentication
 
-### Key Format
+The plugin authenticates with OAuth 2.1 (Authorization Code + PKCE), the mechanism defined by the MCP authorization specification. There is no API key to configure or store.
 
-All Metrikia API keys use the `mk_live_` prefix:
+### Sign-in flow
 
-```
-mk_live_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
-```
+On the first tool call, Claude Code discovers the authorization server from the MCP endpoint (a `401` with a `WWW-Authenticate` header pointing to the Protected Resource Metadata, RFC 9728), then runs a one-time browser sign-in: you log in to Metrikia and authorize the requested scopes. Claude Code receives a short-lived access token and a refresh token, and renews the session automatically.
 
-Keys are generated in **Metrikia Settings > API Keys** and can only be viewed once at creation time. They cannot be retrieved after initial display.
+### Token handling
 
-### Authentication Headers
+| Property | Value |
+|----------|-------|
+| Access token | Opaque, `mko_` prefix (never a JWT), short-lived |
+| Transport | `Authorization: Bearer mko_...` |
+| Refresh | Automatic, with refresh-token rotation (reused tokens revoke the whole chain) |
+| Storage | Managed by Claude Code's MCP client, not by a shell environment variable |
 
-The MCP server accepts the API key via two headers (either is valid):
+The access token is opaque and validated server-side by lookup, so it can be revoked immediately. The server stores only a keyed hash of each token, never the raw value.
 
-| Header | Format |
-|--------|--------|
-| `X-API-Key` | `mk_live_xxx` |
+### Best practices
 
-The plugin uses the `X-API-Key` header, resolved from the `METRIKIA_API_KEY` environment variable:
-
-```json
-{
-  "headers": {
-    "X-API-Key": "${METRIKIA_API_KEY}"
-  }
-}
-```
-
-### Key Management Best Practices
-
-1. **Never commit keys to version control.** Set `METRIKIA_API_KEY` in your shell profile (`~/.zshrc` or `~/.bashrc`) or use a secrets manager.
-2. **Rotate keys periodically.** Generate a new key, update your environment, revoke the old key.
-3. **Use minimal scopes.** If you only need read access, generate a key with `mcp:read` only.
-4. **Revoke immediately if compromised.** In Settings > API Keys, revoke and regenerate.
-5. **One key per environment.** Use separate keys for development and production.
+1. **Authorize only the scopes you need.** The consent screen lists the requested access before you approve.
+2. **Revoke access when no longer needed.** In **Metrikia Settings**, security and access section, revoke the connected application. Revocation cuts off access immediately.
+3. **Sign in per account.** Each sign-in binds the session to your tenant.
 
 ## Scopes
 
