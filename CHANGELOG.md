@@ -1,9 +1,18 @@
 # Changelog
 
+## [2.1.0] - 2026-06-26
+
+### Added
+- `ads-ops` command: an execution layer that turns a Metrikia-informed decision into an action (pause, scale, shift budget, create draft) on Meta / Google Ads / TikTok via official or unified (Pipeboard) provider MCPs. Decisions are driven by Metrikia attribution; created entities land PAUSED; every write is confirmed.
+- ADR-003: Ads Execution Layer. Documents adding provider MCPs on top of Metrikia, and the explicit rejection of a BigQuery warehouse layer (niche, out of product scope) and of a separate ads plugin (DRY violation).
+
+### Changed
+- Plugin positioning extended from measurement-only to a media-buyer command center: measure with Metrikia, act through provider MCPs. Metrikia remains the source of truth and the only hard MCP dependency; provider MCPs are opt-in.
+
 ## [1.2.1] - 2026-04-01
 
 ### Fixed
-- Revert nested `skills/metrikia/` directory — Claude Code resolves namespace from plugin.json `name`, not directory structure
+- Revert nested `skills/metrikia/` directory - Claude Code resolves namespace from plugin.json `name`, not directory structure
 - Skills now correctly register as `/metrikia:weekly-report` instead of `/weekly-report (metrikia)`
 
 ## [1.2.0] - 2026-04-01

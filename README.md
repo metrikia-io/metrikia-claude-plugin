@@ -65,7 +65,7 @@ If the server is unreachable, you get a clear warning with instructions, no sile
 
 ## What's Inside
 
-### Skills (6)
+### Skills (7)
 
 | Skill | Description |
 |-------|-------------|
@@ -75,6 +75,7 @@ If the server is unreachable, you get a clear warning with instructions, no sile
 | `/metrikia:budget-optimizer` | Optimize budget allocation using MTA attribution data |
 | `/metrikia:creative-analysis` | Identify winning/losing creatives, fatigue signals, and scaling opportunities |
 | `/metrikia:attribution-deep-dive` | Multi-touch attribution analysis with journey mapping and channel valuation |
+| `/metrikia:ads-ops` | Execute ad operations (pause, scale, shift budget, create draft) via provider MCPs, deciding from Metrikia attribution, with a PAUSED-by-default guardrail (see ADR-003) |
 
 ### Agents (2)
 
