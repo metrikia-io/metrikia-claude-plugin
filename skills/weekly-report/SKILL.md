@@ -1,4 +1,5 @@
 ---
+name: weekly-report
 description: Generate a comprehensive weekly ad performance report with MER, ROAS, top campaigns, anomalies, and Diana AI recommendations
 ---
 
@@ -71,6 +72,6 @@ digraph weekly_report {
 ## Error Handling
 
 - If MCP server returns connection error -> Check that the plugin is still authorized in Metrikia Settings (sign in again if needed)
-- If "tenant not found" -> API key may have wrong scope. Need `mcp:read` minimum
+- If "tenant not found" -> the session may have the wrong scope authorized. Need `mcp:read` minimum
 - If rate limited (429) -> Wait 60 seconds, reduce batch sizes
 - If empty results -> Verify date range and check if data sources are synced via `get_sync_status`

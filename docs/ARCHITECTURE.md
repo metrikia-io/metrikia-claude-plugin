@@ -64,13 +64,19 @@ metrikia-plugin/
 |-- .cursor-plugin/
 |   |-- plugin.json          # Cursor plugin manifest (mirrors Claude Code)
 |
-|-- commands/
-|   |-- weekly-report.md     # Skill definition (frontmatter + instructions)
-|   |-- campaign-audit.md
-|   |-- lead-pipeline.md
-|   |-- budget-optimizer.md
-|   |-- creative-analysis.md
-|   +-- attribution-deep-dive.md
+|-- skills/
+|   |-- weekly-report/
+|   |   +-- SKILL.md         # Skill definition (frontmatter + instructions)
+|   |-- campaign-audit/
+|   |   +-- SKILL.md
+|   |-- lead-pipeline/
+|   |   +-- SKILL.md
+|   |-- budget-optimizer/
+|   |   +-- SKILL.md
+|   |-- creative-analysis/
+|   |   +-- SKILL.md
+|   +-- attribution-deep-dive/
+|       +-- SKILL.md
 |
 |-- agents/
 |   |-- media-buyer.md       # Agent persona definition
@@ -184,7 +190,7 @@ description: Generate a comprehensive weekly ad performance report
 User: "/metrikia:weekly-report"
     |
     v
-Claude reads the command's markdown instructions
+Claude reads SKILL.md instructions
     |
     v
 Step 1: get_metrics(startDate="-7d") --> MCP server --> JSON response
@@ -339,7 +345,7 @@ User: "/metrikia:weekly-report"
   |
   v
 Claude Code
-  |-- Reads commands/weekly-report.md
+  |-- Reads skills/weekly-report/SKILL.md
   |-- Follows Process steps 1-6
   |
   |-- Step 1: POST https://mcp.metrikia.io/api/v1/mcp
@@ -370,8 +376,8 @@ JSON response -> Claude Code -> Synthesized report -> User
 
 ### Adding a New Skill
 
-1. Create `commands/my-skill.md` with YAML frontmatter and process instructions.
-2. The plugin auto-discovers skills from the `commands/` directory.
+1. Create `skills/my-skill/SKILL.md` with YAML frontmatter and process instructions.
+2. The plugin auto-discovers skills from the `skills/` directory.
 3. No code changes needed -- just markdown.
 
 ### Adding a New Agent

@@ -1,5 +1,6 @@
 ---
-description: Deep audit of a specific campaign — performance metrics, creative breakdown, attribution journey, and optimization recommendations
+name: campaign-audit
+description: Deep audit of a specific campaign - performance metrics, creative breakdown, attribution journey, and optimization recommendations
 ---
 
 # Campaign Audit
@@ -35,12 +36,12 @@ Key metrics: Spend, Revenue, ROAS, CRM ROAS, CPL, CPC, CTR
 Table of all creatives ranked by efficiency
 
 ### Attribution Insights
-How leads from this campaign convert — journey patterns, time to conversion
+How leads from this campaign convert - journey patterns, time to conversion
 
 ### Optimization Recommendations
 Actionable next steps: scale, pause, or iterate
 
-Be specific with numbers. Don't just say "good" — say "3.2x ROAS vs 2.1x benchmark."
+Be specific with numbers. Don't just say "good" - say "3.2x ROAS vs 2.1x benchmark."
 
 ## Process Flow
 
@@ -66,6 +67,6 @@ digraph campaign_audit {
 ## Error Handling
 
 - If MCP server returns connection error -> Check that the plugin is still authorized in Metrikia Settings (sign in again if needed)
-- If "tenant not found" -> API key may have wrong scope. Need `mcp:read` minimum
+- If "tenant not found" -> the session may have the wrong scope authorized. Need `mcp:read` minimum
 - If rate limited (429) -> Wait 60 seconds, reduce batch sizes
 - If empty results -> Verify date range and check if data sources are synced via `get_sync_status`

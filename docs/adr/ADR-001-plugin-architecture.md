@@ -10,10 +10,11 @@ Accepted
 
 ## Update -- 2026-07
 
-Three things described below have since changed; the original decision and its reasoning still hold, only the implementation details below are superseded:
+Two things described below have since changed; the original decision and its reasoning still hold, only the implementation details below are superseded:
 - **Install:** the Claude Code marketplace now exists. Install with `/plugin marketplace add metrikia-io/metrikia-claude-plugin` + `/plugin install metrikia@metrikia-plugin` (see README), not `claude --plugin-dir`.
-- **Auth:** the plugin now authenticates with OAuth 2.1, not a static `METRIKIA_API_KEY` (see [ADR-002](ADR-002-skill-design-philosophy.md)'s sibling security doc, [SECURITY.md](../SECURITY.md)). The API-key references below are historical context, not current behavior.
-- **Skills format:** skills now live as flat `commands/*.md` files, not `skills/*/SKILL.md` directories -- the nested format loaded fine but didn't surface in CLI autocomplete.
+- **Auth:** the plugin now authenticates with OAuth 2.1, not a static `METRIKIA_API_KEY` (see [SECURITY.md](../SECURITY.md)). The API-key references below are historical context, not current behavior.
+
+**Skills format incident (2026-04-01, same day as this ADR):** skills were briefly nested as `skills/metrikia/<name>/SKILL.md`, which broke CLI autocomplete. The nesting was flattened to `skills/<name>/SKILL.md` -- the correct fix -- but autocomplete still didn't show up (stale plugin cache, not retested after a fresh session), so the format itself was wrongly blamed and the plugin was migrated to flat `commands/*.md` files instead. That migration has been reverted: the plugin is back on `skills/<name>/SKILL.md`, which is Claude Code's primary skill format and is natively supported by Cursor's manifest too (`"skills"` key, verified against Cursor's plugin reference). The original decision below, which specifies `skills/*/SKILL.md`, was correct all along.
 
 ## Context
 

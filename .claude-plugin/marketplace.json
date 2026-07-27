@@ -12,7 +12,7 @@
       "name": "metrikia",
       "source": "./",
       "description": "Metrikia MCP plugin: Access campaigns, leads, attribution, and Diana AI insights directly from Claude.",
-      "version": "2.0.0"
+      "version": "2.1.0"
     }
   ]
 }

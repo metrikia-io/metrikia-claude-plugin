@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.1.0] - 2026-07-27
+
+### Changed
+- Skills moved back from flat `commands/*.md` files to `skills/<name>/SKILL.md` directories. The 1.3.0 migration to `commands/` misdiagnosed a nesting bug (`skills/metrikia/<name>/SKILL.md`) as a format problem; the nesting was actually already fixed, and the format itself was never the issue. `skills/*/SKILL.md` is Claude Code's primary skill format and is natively supported by Cursor's manifest as well. Invocations (`/metrikia:weekly-report`, etc.) are unchanged.
+- `.claude-plugin/plugin.json` now explicitly declares `"skills": "./skills/"` for auditability (functionally identical to the default, which already scans `skills/`).
+
 ## [2.0.0] - 2026-06-17
 
 ### Changed (BREAKING)
