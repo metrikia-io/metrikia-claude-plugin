@@ -29,23 +29,23 @@ The access token is opaque and validated server-side by lookup, so it can be rev
 
 ## Scopes
 
-API keys are scoped to control access:
+The OAuth access token is scoped to control access:
 
 | Scope | Purpose | Tools Granted |
 |-------|---------|---------------|
 | `mcp:read` | Read-only access to all data | list_leads, get_lead, list_campaigns, get_campaign_performance, get_creative_report, get_metrics, compare_performance, list_deals, get_attribution_journey, get_anomalies, get_budget_advice, get_sync_status, ask_diana |
 | `mcp:write` | CRM write operations | create_lead, transition_lead, create_deal, trigger_sync |
 
-MCP scopes are separate from REST API scopes (`leads:read`, `deals:write`, etc.). An MCP key cannot access REST API endpoints and vice versa.
+MCP scopes are separate from REST API scopes (`leads:read`, `deals:write`, etc.). An MCP token cannot access REST API endpoints and vice versa.
 
-Write tools require **both** `mcp:read` and `mcp:write` scopes. A key with only `mcp:write` will be rejected.
+Write tools require **both** `mcp:read` and `mcp:write` scopes. A token with only `mcp:write` will be rejected.
 
 ### Scope Enforcement
 
 Scope checking happens at two levels:
 
-1. **Symfony Security layer:** The API key authenticator validates the key and loads the User entity.
-2. **Tool level:** Write tools explicitly check `$apiKey->hasScope('mcp:write')` before executing.
+1. **Authentication layer:** the token authenticator validates the token and loads the authenticated user.
+2. **Tool level:** write tools explicitly check for the `mcp:write` scope before executing.
 
 If a tool is called without the required scope, the server returns HTTP 403 Forbidden.
 
@@ -57,16 +57,16 @@ Every MCP request is bound to a single tenant. Cross-tenant data access is impos
 
 | Layer | Mechanism | Description |
 |-------|-----------|-------------|
-| SQL | `WHERE tenant_id = ?` | Every repository query includes tenant filter |
-| Doctrine | `TenantFilter` | Global ORM filter active on all entities |
-| Tool | `$this->userResolver->getTenant()` | Every tool explicitly resolves and passes tenant |
+| Data layer | Tenant filter | Every repository query includes a tenant filter |
+| ORM | Global filter | Active on all entities, applied automatically |
+| Tool | Explicit resolution | Every tool explicitly resolves and passes the tenant |
 
 ### Isolation Guarantee
 
-- A user's API key is bound to their tenant at creation time.
-- The `McpUserResolverInterface` resolves the authenticated user and their tenant from the security token.
-- Tools pass the tenant to every repository method. There is no `findAll()` without tenant -- it does not exist in the repository interfaces.
-- Even if a user knows another tenant's UUID, the query will return no results because the tenant filter is applied at the SQL level.
+- A user's session is bound to their tenant at sign-in.
+- The authenticated user and their tenant are resolved from the security token on every request.
+- Tools pass the tenant to every repository method. There is no way to query across tenants -- it does not exist in the repository interfaces.
+- Even if a user knows another tenant's UUID, the query will return no results because the tenant filter is applied at the data layer.
 
 ## PII Masking
 
@@ -102,28 +102,11 @@ This is a design invariant, not a configurable option.
 
 ### Enforcement Mechanism
 
-PII exclusion is enforced by **explicit field mapping** in every tool's `mapLead()`, `mapDeal()`, or equivalent method. There is no automatic entity serialization -- every field returned to the MCP client is deliberately chosen.
-
-```php
-// Example from ListLeadsTool -- notice what is included and what is NOT
-private static function mapLead(Lead $lead): array
-{
-    return [
-        'id' => $lead->getId()->toRfc4122(),
-        'fullName' => $lead->getFullName(),
-        'status' => $lead->getStatus()->value,
-        'source' => $lead->getSourceLabel(),
-        // NEVER included:
-        // 'email' => $lead->getEmail(),
-        // 'phone' => $lead->getPhone(),
-        // 'emailHash' => $lead->getEmailHash(),
-    ];
-}
-```
+PII exclusion is enforced by **explicit field mapping** in every tool. There is no automatic entity serialization -- every field returned to the MCP client is deliberately chosen from an allowlist. Fields like email, phone, and any hashed PII are never on that allowlist, so they cannot leak through a future change by omission.
 
 ## Rate Limiting
 
-Rate limits prevent abuse and protect shared infrastructure. They are implemented per API key using Symfony's sliding window rate limiter with Redis backing.
+Rate limits prevent abuse and protect shared infrastructure. They are implemented per token using a sliding window rate limiter.
 
 ### Limits by Category
 
@@ -155,13 +138,13 @@ Most AI clients (Claude Code, Cursor) automatically respect the `Retry-After` he
 ### Why Different Limits
 
 - **Read tools (60/min):** AI agents are bursty -- a skill may chain 5-10 tool calls in rapid succession. 60/min accommodates this while preventing abuse.
-- **Diana (10/5min):** Diana calls Claude Haiku internally. This limit prevents cost overruns and AI-calling-AI loops.
+- **Diana (10/5min):** Diana calls an AI model internally. This limit prevents cost overruns and AI-calling-AI loops.
 - **Write tools (30/min):** Lower than read to prevent accidental bulk operations (e.g., an agent creating 100 leads in a loop).
 - **Sync (5/hour):** Syncs trigger external API calls to Meta/Google/TikTok. Too many syncs can exhaust platform rate limits.
 
 ## Circuit Breaker
 
-The `ask_diana` tool is protected by a Redis-backed circuit breaker to prevent cascading failures when Diana's AI backend (Claude Haiku) is unavailable.
+The `ask_diana` tool is protected by a circuit breaker to prevent cascading failures when Diana's AI backend is unavailable.
 
 ### State Machine
 
@@ -196,8 +179,7 @@ The `ask_diana` tool is protected by a Redis-backed circuit breaker to prevent c
 | Failure window | 5 minutes |
 | Cooldown period | 30 seconds |
 | Half-open probes | 1 request |
-| Storage | Redis (keyed per tenant) |
-| Implementation | `McpCircuitBreaker` implements `CircuitBreakerInterface` |
+| Storage | Shared cache, keyed per tenant |
 
 ### Behavior When Open
 
@@ -232,10 +214,8 @@ Diana's backend also has its own prompt injection defenses (instruction hierarch
 
 ### Data Residency
 
-- The MCP server runs on Railway EU West (Amsterdam).
-- PostgreSQL with tenant data is hosted in EU.
-- Redis (sessions, circuit breaker) is hosted in EU.
-- API keys and authentication data are stored in EU.
+- The MCP server runs on EU-hosted infrastructure.
+- Tenant data, sessions, and authentication data are all hosted in the EU.
 
 ### Right to Erasure
 
@@ -247,33 +227,30 @@ When a lead exercises their right to erasure:
 
 ### Data Retention
 
-- MCP sessions: 3600 seconds TTL in Redis.
-- API keys: no automatic expiration (manual revocation).
+- MCP sessions: short-lived, capped TTL.
+- Access tokens: short-lived; refresh tokens are revoked immediately on sign-out.
 - Anomaly data: 30 days rolling window.
 - Performance data: retained per tenant retention policy.
 
 ## Incident Response
 
-### Compromised API Key
+### Compromised Access
 
-1. Immediately revoke the key in Settings > API Keys.
-2. Generate a new key with the same scopes.
-3. Update the `METRIKIA_API_KEY` environment variable.
-4. Review audit logs for unauthorized access.
+1. Immediately revoke the connected application in **Metrikia Settings**, security and access section.
+2. Sign in again to issue a fresh token.
+3. Review audit logs for unauthorized access.
 
 ### Suspicious Activity
 
 Rate limiting and circuit breaker automatically mitigate most abuse patterns. If you suspect unauthorized access:
 
-1. Revoke all API keys.
+1. Revoke the connected application's access.
 2. Contact support@metrikia.io with the suspected timeframe.
 3. Metrikia can provide access logs for your tenant.
 
 ## Security Checklist
 
-- [ ] `METRIKIA_API_KEY` is set in environment, not committed to source control
-- [ ] API key has minimal required scopes (`mcp:read` only if write is not needed)
-- [ ] API key is rotated at least quarterly
-- [ ] No `.env` files containing the key are committed
-- [ ] Team members use individual API keys, not shared keys
-- [ ] Unused keys are revoked promptly
+- [ ] Only the scopes you actually need are authorized (`mcp:read` only if write is not needed)
+- [ ] The connected application is reviewed periodically in **Metrikia Settings**
+- [ ] Team members sign in individually, not through a shared account
+- [ ] Unused connected applications are revoked promptly

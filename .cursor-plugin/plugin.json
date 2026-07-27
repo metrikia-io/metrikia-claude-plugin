@@ -6,8 +6,8 @@
     "name": "Metrikia",
     "email": "support@metrikia.io"
   },
-  "homepage": "https://github.com/BULDEE/metrikia-claude-plugin",
-  "repository": "https://github.com/BULDEE/metrikia-claude-plugin",
+  "homepage": "https://github.com/metrikia-io/metrikia-claude-plugin",
+  "repository": "https://github.com/metrikia-io/metrikia-claude-plugin",
   "license": "MIT",
   "keywords": ["ads", "media-buying", "roi", "attribution", "mcp", "metrikia", "performance-marketing"],
   "skills": "./skills/",

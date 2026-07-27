@@ -16,10 +16,10 @@ In Claude Code:
 
 ```bash
 # Step 1: Add the marketplace
-/plugin marketplace add BULDEE/metrikia-claude-plugin
+/plugin marketplace add metrikia-io/metrikia-claude-plugin
 
 # Step 2: Install the plugin
-/plugin install metrikia@BULDEE-metrikia-claude-plugin
+/plugin install metrikia@metrikia-io-metrikia-claude-plugin
 
 # Step 3: Restart Claude Code
 exit
@@ -32,7 +32,7 @@ On the first Metrikia tool call, a browser window opens. Sign in to Metrikia (if
 
 ```bash
 # If you cloned the repo locally
-git clone https://github.com/BULDEE/metrikia-claude-plugin.git
+git clone https://github.com/metrikia-io/metrikia-claude-plugin.git
 /plugin marketplace add /path/to/metrikia-claude-plugin
 /plugin install metrikia@metrikia-plugin
 ```
@@ -209,4 +209,4 @@ The plugin prompts for these options when enabled:
 - [MCP Server Documentation](https://api.metrikia.io/public/api/v1/docs?ui=redoc#section/MCP-Server)
 - [API Documentation](https://api.metrikia.io/public/api/v1/docs?ui=redoc)
 - [Support](mailto:support@metrikia.io)
-- [GitHub Issues](https://github.com/BULDEE/metrikia-claude-plugin/issues)
+- [GitHub Issues](https://github.com/metrikia-io/metrikia-claude-plugin/issues)

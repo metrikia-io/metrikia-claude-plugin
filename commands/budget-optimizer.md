@@ -57,7 +57,7 @@ digraph budget_optimizer {
 
 ## Error Handling
 
-- If MCP server returns connection error -> Check that `METRIKIA_API_KEY` is set and valid
+- If MCP server returns connection error -> Check that the plugin is still authorized in Metrikia Settings (sign in again if needed)
 - If "tenant not found" -> API key may have wrong scope. Need `mcp:read` minimum
 - If rate limited (429) -> Wait 60 seconds, reduce batch sizes
 - If empty results -> Verify date range and check if data sources are synced via `get_sync_status`

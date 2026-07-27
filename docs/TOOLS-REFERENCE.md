@@ -1,10 +1,10 @@
 # Metrikia MCP Tools Reference
 
-Complete reference for all 17 MCP tools exposed by the Metrikia server. Each tool is a `final class` in the Symfony backend with the `#[McpTool]` attribute, auto-discovered at boot time.
+Complete reference for all 17 MCP tools exposed by the Metrikia server. Each tool is auto-discovered by the backend at boot time.
 
 **Endpoint:** `https://mcp.metrikia.io/api/v1/mcp`
 **Protocol:** JSON-RPC 2.0 over HTTP
-**Authentication:** `Authorization: Bearer mk_live_xxx`
+**Authentication:** `Authorization: Bearer mko_xxx` (OAuth 2.1 access token, see [SECURITY.md](SECURITY.md))
 
 ---
 

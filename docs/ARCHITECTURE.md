@@ -26,7 +26,7 @@ The Metrikia plugin connects Claude Code (and Cursor) to Metrikia's MCP server, 
         v                           v
 +--------------------------------------------------+
 |  MCP Tool Calls (JSON-RPC over HTTP)             |
-|  X-API-Key: ${METRIKIA_API_KEY}       |
+|  OAuth 2.1 Bearer token                          |
 +--------------------------------------------------+
         |
         | HTTPS
@@ -34,20 +34,20 @@ The Metrikia plugin connects Claude Code (and Cursor) to Metrikia's MCP server, 
 +--------------------------------------------------+
 |  Metrikia MCP Server                             |
 |  https://mcp.metrikia.io/api/v1/mcp             |
-|  (Symfony MCP Bundle, Railway EU West)           |
+|  (MCP-compliant backend, EU-hosted)              |
 +--------------------------------------------------+
         |
-        | Symfony DI
+        | Dependency injection
         v
 +--------------------------------------------------+
 |  Application Layer                               |
 |  UseCase + Repository + Domain Services          |
 +--------------------------------------------------+
         |
-        | Doctrine ORM / PDO
+        | Data access layer
         v
 +--------------------------------------------------+
-|  PostgreSQL (tenant-scoped) + Redis              |
+|  Database (tenant-scoped) + cache layer          |
 |  (sessions, circuit breaker, rate limits)        |
 +--------------------------------------------------+
 ```
@@ -116,35 +116,34 @@ The plugin registers the Metrikia MCP server declaratively in `plugin.json`:
   "mcpServers": {
     "metrikia": {
       "type": "http",
-      "url": "https://mcp.metrikia.io/api/v1/mcp",
-      "headers": {
-        "X-API-Key": "${METRIKIA_API_KEY}"
-      }
+      "url": "https://mcp.metrikia.io/api/v1/mcp"
     }
   }
 }
 ```
 
-The `${METRIKIA_API_KEY}` variable is resolved from the user's environment at runtime. The plugin never stores or caches the key.
+No key or header is declared. Authentication happens through OAuth 2.1, negotiated at runtime by the MCP client (see [SECURITY.md](SECURITY.md) for the full flow).
 
 ### Authentication Flow
 
 ```
-1. User sets METRIKIA_API_KEY in shell environment
-2. Claude Code loads plugin.json, resolves ${METRIKIA_API_KEY}
-3. Every MCP tool call includes: Authorization: Bearer mk_live_xxx
-4. Metrikia validates key, checks scopes (mcp:read / mcp:write)
-5. User and Tenant loaded from database
-6. All queries scoped to tenant via McpUserResolverInterface
+1. Claude Code loads plugin.json and connects to the MCP server
+2. The server responds 401 with a WWW-Authenticate header (RFC 9728)
+3. Claude Code opens a one-time browser sign-in (OAuth 2.1, PKCE)
+4. User logs in to Metrikia and authorizes the requested scopes
+5. Claude Code receives a short-lived access token (mko_ prefix) + refresh token
+6. Every MCP tool call includes: Authorization: Bearer mko_xxx
+7. Metrikia validates the token, checks scopes (mcp:read / mcp:write)
+8. User and tenant resolved from the token, every query scoped to that tenant
 ```
 
-Keys use the `mk_live_` prefix and are generated in Metrikia Settings > API Keys. Two scopes exist:
+Two scopes exist:
 - `mcp:read` -- Required. Grants access to 13 read tools.
 - `mcp:write` -- Optional. Grants access to 4 write tools (create_lead, transition_lead, create_deal, trigger_sync).
 
 ### Transport
 
-HTTP transport over TLS. The MCP server runs on a dedicated Railway service at `https://mcp.metrikia.io/api/v1/mcp`, scaled independently from the main API. Streamable HTTP (SSE) is planned for `ask_diana` in v1.2.
+HTTP transport over TLS. The MCP server runs at `https://mcp.metrikia.io/api/v1/mcp`, scaled independently from the main API. Streamable HTTP (SSE) is planned for `ask_diana` in v1.2.
 
 ## Skill Execution Model
 
@@ -295,11 +294,11 @@ The MCP server enforces a strict PII invariant at the tool level. Every tool use
 | Write tools | 30 requests | 1 minute |
 | Sync trigger | 5 requests | 1 hour |
 
-Implemented via Symfony's sliding window rate limiter. Returns HTTP 429 with `Retry-After` header when exceeded.
+Implemented via a sliding window rate limiter. Returns HTTP 429 with `Retry-After` header when exceeded.
 
 ### Circuit Breaker (Diana AI)
 
-`ask_diana` calls Claude Haiku internally (AI-calling-AI). A Redis-backed circuit breaker prevents runaway loops:
+`ask_diana` calls an AI model internally (AI-calling-AI). A circuit breaker prevents runaway loops:
 
 ```
 Closed (normal) --5 failures--> Open (blocked, 30s cooldown)
@@ -317,19 +316,14 @@ Closed (normal) --5 failures--> Open (blocked, 30s cooldown)
 
 - Threshold: 5 consecutive failures within 5 minutes
 - Cooldown: 30 seconds
-- Storage: Redis (keyed per tenant, cross-instance)
-- Implementation: `McpCircuitBreaker` implements `CircuitBreakerInterface`
+- Storage: shared cache, keyed per tenant, cross-instance
 
 ### Multi-Tenancy
 
 Every MCP query is filtered by tenant at three levels:
-1. **SQL layer:** `WHERE tenant_id = ?` on every repository query
-2. **Doctrine layer:** Global `TenantFilter` active on all entities
-3. **Tool layer:** `$this->userResolver->getTenant()` called explicitly in every tool
-
-### Environment Variable Security
-
-The `METRIKIA_API_KEY` environment variable must never be committed to version control. The `.claude-plugin/ignore` file excludes sensitive paths. Users should set the key in their shell profile (`~/.zshrc` or `~/.bashrc`) or use a secrets manager.
+1. **Data layer:** every repository query is scoped to the tenant
+2. **ORM layer:** a global tenant filter is active on all entities
+3. **Tool layer:** every tool explicitly resolves and passes the tenant
 
 ## Multi-Platform Support
 
@@ -358,21 +352,21 @@ Claude Code
   |     Body: {"jsonrpc":"2.0","method":"tools/call",
   |            "params":{"name":"get_metrics",
   |                      "arguments":{"startDate":"2026-03-25","endDate":"2026-04-01"}}}
-  |     Auth: Bearer mk_live_xxx
+  |     Auth: Bearer mko_xxx
   |
   v
-Metrikia MCP Server (Symfony)
-  |-- Validates API key, checks mcp:read scope
-  |-- Resolves User + Tenant via McpUserResolverInterface
-  |-- Dispatches to GetMetricsTool.__invoke()
-  |     |-- GetMERUseCase.execute(tenantId, dateRange)
-  |     |-- GetRealROASUseCase.execute(tenantId, dateRange)
+Metrikia MCP Server
+  |-- Validates the session token, checks mcp:read scope
+  |-- Resolves the authenticated user and tenant
+  |-- Dispatches to the metrics use cases
+  |     |-- Computes MER for the date range
+  |     |-- Computes real ROAS for the date range
   |     +-- Returns: {period, mer, totalRevenue, totalSpend, roas, ...}
   |
   v
-PostgreSQL (tenant-scoped queries)
-  |-- performance_data WHERE tenant_id = ? AND date BETWEEN ? AND ?
-  |-- deals WHERE tenant_id = ? AND closed_at BETWEEN ? AND ?
+Database (tenant-scoped queries)
+  |-- Performance data filtered by tenant and date range
+  |-- Deals filtered by tenant and close date
   |
   v
 JSON response -> Claude Code -> Synthesized report -> User
@@ -393,11 +387,10 @@ JSON response -> Claude Code -> Synthesized report -> User
 
 ### Server-Side Tool Additions
 
-When new MCP tools are added to the Metrikia backend (in `src/Presentation/Mcp/Tool/`), they are auto-discovered by the Symfony MCP Bundle via the `#[McpTool]` attribute. The plugin picks them up automatically on the next session -- no plugin update needed for new tools.
+When new MCP tools are added to the Metrikia backend, they are auto-discovered at boot time. The plugin picks them up automatically on the next session -- no plugin update needed for new tools.
 
 ---
 
 **Version:** 1.0.0
 **Last Updated:** April 2026
-**MCP Server:** Symfony MCP Bundle ^0.6.0
 **Transport:** HTTP (Streamable HTTP planned v1.2)
