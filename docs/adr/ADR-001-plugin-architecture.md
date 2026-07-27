@@ -8,6 +8,13 @@ Accepted
 
 2026-04-01
 
+## Update -- 2026-07
+
+Three things described below have since changed; the original decision and its reasoning still hold, only the implementation details below are superseded:
+- **Install:** the Claude Code marketplace now exists. Install with `/plugin marketplace add metrikia-io/metrikia-claude-plugin` + `/plugin install metrikia@metrikia-plugin` (see README), not `claude --plugin-dir`.
+- **Auth:** the plugin now authenticates with OAuth 2.1, not a static `METRIKIA_API_KEY` (see [ADR-002](ADR-002-skill-design-philosophy.md)'s sibling security doc, [SECURITY.md](../SECURITY.md)). The API-key references below are historical context, not current behavior.
+- **Skills format:** skills now live as flat `commands/*.md` files, not `skills/*/SKILL.md` directories -- the nested format loaded fine but didn't surface in CLI autocomplete.
+
 ## Context
 
 Metrikia has an MCP server (ADR-085 in the main project) that exposes 17 tools for ad performance, CRM, attribution, and Diana AI. This server is already accessible to any MCP-compatible client via direct configuration (adding the server URL and API key to the client's config file).

@@ -1,9 +1,27 @@
 # Changelog
 
+## [2.0.0] - 2026-06-17
+
+### Changed (BREAKING)
+- Authentication switched from a static API key (`METRIKIA_API_KEY` env var, `X-API-Key` header) to OAuth 2.1 (Authorization Code + PKCE), the mechanism defined by the MCP authorization spec. No key to configure: sign-in happens through a one-time browser flow on the first tool call, and the session renews automatically.
+
+### Migration
+- If you had `METRIKIA_API_KEY` set, it is no longer read and can be removed. On your next session, the first Metrikia tool call opens a browser sign-in instead.
+
+## [1.3.0] - 2026-04-01
+
+### Changed
+- Skills migrated from `skills/*/SKILL.md` to flat `commands/*.md` files. The nested `SKILL.md` format loaded correctly at runtime but did not surface in Claude Code's CLI autocomplete.
+- Auth header switched from `Authorization: Bearer` to `X-API-Key` (superseded by OAuth in 2.0.0).
+
+### Added
+- Usage examples in README, from simple status checks to expert-level multi-tool workflows.
+- `marketplace.json` restored with corrected GitHub marketplace install instructions.
+
 ## [1.2.1] - 2026-04-01
 
 ### Fixed
-- Revert nested `skills/metrikia/` directory — Claude Code resolves namespace from plugin.json `name`, not directory structure
+- Revert nested `skills/metrikia/` directory - Claude Code resolves namespace from plugin.json `name`, not directory structure
 - Skills now correctly register as `/metrikia:weekly-report` instead of `/weekly-report (metrikia)`
 
 ## [1.2.0] - 2026-04-01

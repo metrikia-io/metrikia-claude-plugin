@@ -19,7 +19,7 @@ In Claude Code:
 /plugin marketplace add metrikia-io/metrikia-claude-plugin
 
 # Step 2: Install the plugin
-/plugin install metrikia@metrikia-io-metrikia-claude-plugin
+/plugin install metrikia@metrikia-plugin
 
 # Step 3: Restart Claude Code
 exit
@@ -199,7 +199,7 @@ The plugin prompts for these options when enabled:
 
 ## Requirements
 
-- [Claude Code](https://claude.ai/claude-code) 1.0.33 or later
+- [Claude Code](https://claude.ai/claude-code), latest version (plugin marketplaces and MCP OAuth require a recent release)
 - A Metrikia account (you authorize access with a one-time browser sign-in, no API key needed)
 - `curl` (for automatic health check at startup)
 
