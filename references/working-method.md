@@ -2,6 +2,8 @@
 
 How every Metrikia skill and sub-agent works. A skill says what to ask and what to deliver, this page says the rest.
 
+An option that still reads `${user_config...}` is not set: take the language of the message, and 30 days for the period.
+
 It holds no threshold, benchmark or rule of thumb on purpose. The agents of Metrikia apply theirs to the data of the account: ask them, and never fill one in from general knowledge.
 
 ## Choose who answers
