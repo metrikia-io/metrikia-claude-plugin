@@ -16,9 +16,16 @@ Two things described below have since changed; the original decision and its rea
 
 **Skills format incident (2026-04-01, same day as this ADR):** skills were briefly nested as `skills/metrikia/<name>/SKILL.md`, which broke CLI autocomplete. The nesting was flattened to `skills/<name>/SKILL.md` -- the correct fix -- but autocomplete still didn't show up (stale plugin cache, not retested after a fresh session), so the format itself was wrongly blamed and the plugin was migrated to flat `commands/*.md` files instead. That migration has been reverted: the plugin is back on `skills/<name>/SKILL.md`, which is Claude Code's primary skill format and is natively supported by Cursor's manifest too (`"skills"` key, verified against Cursor's plugin reference). The original decision below, which specifies `skills/*/SKILL.md`, was correct all along.
 
+## Update -- 2026-11
+
+The decision holds. Three details below have changed:
+- **Counts:** the numbers of tools and skills below are those of April 2026. The current ones are in the [README](../../README.md) and in [TOOLS-REFERENCE.md](../TOOLS-REFERENCE.md).
+- **Expertise:** skills and sub-agents no longer carry an expertise of their own. They hold the method and ask the agents of Metrikia, listed when the account has access to them. See the update of the same month in [ADR-002](ADR-002-skill-design-philosophy.md).
+- **Shared text:** what every skill repeated (method, error handling) lives in `references/`.
+
 ## Context
 
-Metrikia has an MCP server (ADR-085 in the main project) that exposes 17 tools for ad performance, CRM, attribution, and Diana AI. This server is already accessible to any MCP-compatible client via direct configuration (adding the server URL and API key to the client's config file).
+Metrikia has an MCP server that exposes 17 tools for ad performance, CRM, attribution, and the Metrikia Assistant. This server is already accessible to any MCP-compatible client via direct configuration (adding the server URL and API key to the client's config file).
 
 We need to make the Metrikia MCP integration accessible to AI clients (Claude Code, Cursor) in a way that maximizes usability for media buyers and performance managers who are not developers. The raw MCP tools are powerful but require the user to know which tools exist, what parameters they accept, and how to chain them together for meaningful analysis.
 
@@ -122,6 +129,5 @@ The plugin provides:
 
 ## References
 
-- [ADR-085 -- MCP Server Architecture](https://github.com/BULDEE/metrikia/blob/main/docs/adr/ADR-085-mcp-server-architecture.md) (main project)
 - [MCP Protocol Specification](https://modelcontextprotocol.io)
 - [Claude Code Plugin Documentation](https://code.claude.com/docs/en/plugins)

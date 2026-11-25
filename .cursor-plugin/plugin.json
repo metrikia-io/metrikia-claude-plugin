@@ -1,7 +1,7 @@
 {
   "name": "metrikia",
-  "description": "Metrikia MCP plugin: AI-powered ad tracking and ROI analysis for Media Buyers, Ad Agencies, and Entrepreneurs. Access campaigns, leads, attribution, and Diana AI insights directly from Claude.",
-  "version": "2.1.0",
+  "description": "Read your Metrikia account from Cursor: ads, real sales, leads and attribution. Skills that ask the Metrikia agents open to your account, then leave the decision to you. For media buyers, agencies and brands.",
+  "version": "2.2.0",
   "author": {
     "name": "Metrikia",
     "email": "support@metrikia.io"

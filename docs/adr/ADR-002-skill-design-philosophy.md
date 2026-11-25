@@ -8,6 +8,18 @@ Accepted
 
 2026-04-01
 
+## Update -- 2026-11: the method here, the know-how on the server
+
+Skills stay markdown instructions. What they hold has changed:
+
+- **Principle 2 is replaced.** A skill no longer teaches warning signals or thresholds. Copied into a skill, they are general, they age, and they read as facts about an account they never looked at. The agents of Metrikia apply theirs to the data of the account, so a skill holds the method only: what to check and in which order, whom to ask and with which question, what to deliver, which mistakes to avoid.
+- **One good question replaces a long list of calls.** A skill asks the agent whose field it is, when the account lists it, and continues the same conversation for a follow-up. Without an agent, it works with the read tools and says what is missing.
+- **Principle 3 is narrowed.** The structure is one screen that ends with numbered lines to decide on. The user decides, and nothing is applied without a yes on each line.
+- **Principle 4 and the repeated sections moved.** The method and the error handling are written once, in `references/`, and read when needed.
+- **The process graphs are gone.** They drew linear lists, and one of them disagreed with its own steps.
+
+The sections below are the decision as taken in April 2026.
+
 ## Context
 
 The Metrikia plugin needs to provide guided analysis workflows that chain multiple MCP tool calls into coherent reports. Skills are the mechanism for this.
@@ -108,7 +120,7 @@ description: Generate a weekly ad performance report
 ...
 
 ## Red Flags
-- MER dropping >20% week-over-week -- investigate immediately
+- MER dropping week over week -- investigate immediately
 - Spend anomaly with no revenue change -- possible tracking issue
 
 ## Error Handling

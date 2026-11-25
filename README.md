@@ -1,10 +1,10 @@
 # Metrikia Plugin for Claude Code
 
-AI-powered ad tracking and ROI analysis directly in Claude Code. Connect your AI assistant to Metrikia's MCP server and access campaigns, leads, attribution, and Diana AI insights.
+Read your Metrikia account from Claude Code, ask the Metrikia agents open to your account, and get a short list of lines to decide on. Metrikia changes nothing on your ad accounts: the decision stays yours.
 
 ## What is Metrikia?
 
-Metrikia is a SaaS platform that correlates ad investments (Meta, Google, TikTok) with CRM sales data to calculate real ROI. It provides multi-touch attribution (9 models including Shapley and Markov), lead pipeline tracking, creative performance analysis, and Diana AI for strategic recommendations. Built for Media Buyers, Creative Strategists, Performance Managers, and Ad Agencies.
+Metrikia is a SaaS platform that links what you spend on ads (Meta, Google, TikTok and other platforms) to the sales you make: store orders, payments and CRM deals. It shows what the ads really bring, next to what each ad platform reports. It is built for media buyers, creative strategists, performance managers, agencies and the brands they work for.
 
 ## Installation
 
@@ -26,7 +26,7 @@ exit
 claude
 ```
 
-On the first Metrikia tool call, a browser window opens. Sign in to Metrikia (if needed) and click **Authorize**. That is all: no key to paste, and access can be revoked at any time from your Metrikia settings.
+On the first Metrikia tool call, a browser window opens. Sign in to Metrikia (if needed) and click **Authorize**. That is all: no key to paste.
 
 ### From Local Path
 
@@ -59,134 +59,103 @@ The plugin runs an automatic health check at startup. If you see **"Metrikia Plu
 
 ## Health Check
 
-At every session start, the plugin automatically verifies that the MCP server at `mcp.metrikia.io` is reachable. Authentication itself is handled by OAuth on the first tool call (a one-time browser sign-in), so there is no key to check.
+At every session start, the plugin verifies that the MCP server at `mcp.metrikia.io` is reachable. Authentication is handled by OAuth on the first tool call (a one-time browser sign-in), so there is no key to check.
 
 If the server is unreachable, you get a clear warning with instructions, no silent failures.
 
 ## What's Inside
 
-### Skills (6)
+### Skills
 
-| Skill | Description |
+| Skill | What it answers |
 |-------|-------------|
-| `/metrikia:weekly-report` | Generate a weekly ad performance report with MER, ROAS, anomalies, and Diana recommendations |
-| `/metrikia:campaign-audit` | Deep audit of a specific campaign with creative breakdown and attribution insights |
-| `/metrikia:lead-pipeline` | Analyze CRM pipeline health, conversion rates, and source attribution |
-| `/metrikia:budget-optimizer` | Optimize budget allocation using MTA attribution data |
-| `/metrikia:creative-analysis` | Identify winning/losing creatives, fatigue signals, and scaling opportunities |
-| `/metrikia:attribution-deep-dive` | Multi-touch attribution analysis with journey mapping and channel valuation |
+| `/metrikia:next-actions` | What do I do today? A few actions, in order |
+| `/metrikia:weekly-report` | How did the week go, and what do I decide for the next one? |
+| `/metrikia:budget-optimizer` | Where do I put the money, line by line? |
+| `/metrikia:campaign-audit` | This campaign: does it hold my goal, what limits it, what do I change? |
+| `/metrikia:creative-analysis` | Which ads sell and why, which wear out, what do we make next? |
+| `/metrikia:lead-pipeline` | From the lead to the signed sale: where do people stop, which sources bring the ones who sign? |
+| `/metrikia:attribution-deep-dive` | Who really brings the sales: what opens the journeys, what closes them? |
+| `/metrikia:trust-check` | Can I decide on these figures, and what is the first thing to fix? |
 
-### Agents (2)
+### How a skill works
 
-| Agent | Description |
+1. It asks one good question to the Metrikia agent whose field it is, when your account lists that agent. The agent reads your account and answers with your figures.
+2. Without an agent, it works with the read tools and says what is missing.
+3. It gives you one screen: what is true, what changed, what explains it, and the few lines to decide on.
+4. You decide. If you have a tool of your ad platform connected and ask for it, a line is applied there after your explicit yes on that line.
+
+A skill holds the method: what to check, whom to ask, what to deliver. The expertise comes with the answers of the agents.
+
+### Agents of Metrikia
+
+| Agent | Ask it about |
 |-------|-------------|
-| `media-buyer` | Senior Media Buyer for campaign optimization, budget allocation, and scaling strategies |
-| `growth-analyst` | Growth Analyst for funnel analysis, attribution modeling, and revenue correlation |
+| Media buyer | Budgets: cut, hold, raise, move, read a test, prepare a sales event |
+| Creative strategist | The ads: which sell and why, which wear out, what to make next |
+| Data scientist | The truth of the figures: gaps between platforms, Metrikia, store and payments, state of the tracking, does the marketing work as a whole |
+| Metrikia Assistant | How the platform works. Open to every account |
 
-### MCP Tools (17)
+The first three are listed only when your account has access to them.
 
-**Campaigns:** `list_campaigns`, `get_campaign_performance`, `get_creative_report`, `compare_performance`
+### Sub-agents
+
+| Sub-agent | Use it for |
+|-------|-------------|
+| `media-buyer` | A longer piece of work on campaigns, budgets and ads |
+| `growth-analyst` | A longer piece of work from the click to the sale |
+
+They work on your side, prepare the questions and hand you the list to decide. They are not the agents of Metrikia.
+
+### MCP Tools
+
+18 tools come with every account: 14 to read and ask, 4 to write.
+
+**Ads:** `list_campaigns`, `get_ads_performance`, `get_campaign_performance`, `get_creative_report`, `compare_performance`, `get_budget_advice`, `get_anomalies`
+
+**Sales and attribution:** `get_metrics`, `get_attribution_journey`
 
 **Leads/CRM:** `list_leads`, `get_lead`, `list_deals`
 
-**Attribution:** `get_attribution_journey`, `get_budget_advice`
+**Data:** `get_sync_status`
 
-**Metrics:** `get_metrics`, `get_anomalies`, `get_sync_status`
-
-**Diana AI:** `ask_diana`
+**Metrikia Assistant:** `ask_assistant`
 
 **Write:** `create_lead`, `transition_lead`, `create_deal`, `trigger_sync`
 
+The full reference is in [docs/TOOLS-REFERENCE.md](docs/TOOLS-REFERENCE.md).
+
 ## Examples
 
-### Simple - Quick Status Check
+> "What are my three actions for today? The grey lamp is sold out."
 
-> "How are my campaigns performing this week?"
+`/metrikia:next-actions`: the stock goes into the question, the actions come back with the object, the value today and the next one.
 
-Claude uses `get_metrics` and `compare_performance` to fetch your real data and returns a summary with week-over-week trends. No dashboard navigation needed.
+> "My ad platform and my store do not show the same sales. Can I decide on these figures?"
 
-### Simple - Lead Quality by Source
+`/metrikia:trust-check`: what each side counts, what can be decided on, and what to fix first.
 
-> "Which ad platforms bring leads that actually close as deals?"
+> "I have a fixed amount for next month. Where do I put it? The catalogue campaign stays as it is."
 
-Claude calls `list_leads`, `list_deals`, and `get_attribution_journey` to correlate CRM data with ad sources - something that normally requires exporting CSVs from multiple tools and joining them manually.
+`/metrikia:budget-optimizer`: the plan line by line with its effect on the daily spend. Keep some lines only and ask again: the plan is sized anew.
 
-### Intermediate - Weekly Report with Anomaly Detection
+> "What do we film next? The best ad opens on a runner lacing shoes at night."
 
-> `/metrikia:weekly-report`
+`/metrikia:creative-analysis`: your description is what no tool can see, so it goes with the question.
 
-Generates a structured report in one shot:
-- Aggregated metrics (MER, ROAS, CPA, CPL) with week-over-week trends
-- Top/bottom campaigns ranked by ROAS
-- Anomaly detection (spend spikes, CTR drops, conversion rate shifts)
-- Diana AI strategic recommendations
-- Concrete next actions with priority
+> "Plenty of leads, few of them sign. What do we do?"
 
-**What Claude Code alone can't do:** Access your live campaign data, calculate real MER across platforms, or detect anomalies based on your historical performance.
-
-### Intermediate - Creative Fatigue Analysis
-
-> `/metrikia:creative-analysis`
-
-Identifies which creatives are fatiguing and which are ready to scale:
-- Frequency vs. CTR degradation curves per creative
-- Winners (high ROAS, stable performance) vs. losers (declining CTR, rising CPA)
-- Scaling recommendations with budget suggestions
-- New creative angle suggestions based on top performers
-
-**What Claude Code alone can't do:** Access per-creative performance data, track frequency curves over time, or correlate creative performance with actual conversions.
-
-### Advanced - Full-Funnel Attribution Audit
-
-> "Compare Shapley vs last-click attribution for my Meta campaigns this quarter, then show me which channels are undervalued and recommend a budget reallocation"
-
-Claude chains multiple tools:
-1. `get_campaign_performance` - fetches Meta campaigns for the quarter
-2. `get_attribution_journey` - pulls multi-touch attribution (Shapley model)
-3. `compare_performance` - benchmarks against last-click model
-4. `get_budget_advice` - gets data-driven reallocation recommendations
-5. `ask_diana` - validates the strategy with Diana AI
-
-Result: a complete analysis showing which channels get too much/too little budget based on their true contribution, with specific reallocation percentages.
-
-**What Claude Code alone can't do:** Run Shapley/Markov attribution models, access your cross-platform journey data, or calculate channel contribution across touchpoints.
-
-### Advanced - Pipeline-to-Revenue Correlation
-
-> `/metrikia:lead-pipeline` then "Cross-reference the top 3 lead sources with their average deal size and sales cycle length"
-
-Claude performs end-to-end funnel analysis:
-1. Pipeline health: conversion rates per stage, velocity, bottlenecks
-2. Source quality ranking: not just volume, but lead-to-deal conversion rate per source
-3. Revenue attribution: average deal size and cycle length per ad source
-4. ROI calculation: true cost-per-acquisition including sales cycle cost
-
-**What Claude Code alone can't do:** Access your CRM pipeline data, correlate ad spend with deal outcomes, or calculate true customer acquisition cost across the full funnel.
-
-### Expert - Monday Morning Playbook
-
-> "Give me my Monday morning playbook: what changed over the weekend, what needs immediate action, and what should I test this week"
-
-Claude orchestrates the full toolkit:
-1. `get_anomalies` - flags weekend changes (spend, performance shifts)
-2. `get_metrics` + `compare_performance` - weekend vs. weekday benchmarks
-3. `get_creative_report` - creative fatigue signals emerging
-4. `get_budget_advice` - reallocation opportunities from fresh data
-5. `list_leads` - new leads from weekend, quality assessment
-6. `ask_diana` - strategic priorities for the week
-
-Result: an actionable brief with 3 sections - **Urgent** (fix now), **Optimize** (improve this week), **Test** (new experiments to launch).
+`/metrikia:lead-pipeline`: the leads the platforms count next to the CRM, the step where people stop, and who does what.
 
 ## Basic Workflow
 
-Skills chain together for comprehensive analysis:
+1. **Every day**: `/metrikia:next-actions`
+2. **A figure looks wrong**: `/metrikia:trust-check`, before any decision that rests on it
+3. **Every week**: `/metrikia:weekly-report`
+4. **To dig**: `/metrikia:campaign-audit`, `/metrikia:creative-analysis`, `/metrikia:attribution-deep-dive`, `/metrikia:lead-pipeline`
+5. **To move money**: `/metrikia:budget-optimizer`
 
-1. **Start broad** - `/metrikia:weekly-report` for the overall picture
-2. **Drill down** - `/metrikia:campaign-audit` on underperforming campaigns
-3. **Check creatives** - `/metrikia:creative-analysis` to find fatigue or winners
-4. **Understand journeys** - `/metrikia:attribution-deep-dive` for true channel value
-5. **Optimize** - `/metrikia:budget-optimizer` to reallocate based on findings
-6. **Monitor pipeline** - `/metrikia:lead-pipeline` to verify lead quality follows
+Ask your next question in the same conversation: the agent keeps the thread.
 
 ## Configuration
 
@@ -194,8 +163,8 @@ The plugin prompts for these options when enabled:
 
 | Option | Description |
 |--------|-------------|
-| `default_period` | Default analysis period: 7d, 30d, or 90d (default: 30d) |
-| `language` | Report language: en or fr (default: en) |
+| `default_period` | Period a skill reads when you name none: 7d, 30d, or 90d (default: 30d) |
+| `language` | Language of the answers when your message does not tell: en or fr (default: en) |
 
 ## Requirements
 

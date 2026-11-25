@@ -1,256 +1,90 @@
-# Metrikia Plugin -- Security and Compliance
+# Metrikia Plugin: Security and Privacy
 
-Security architecture for the Metrikia Claude Code plugin and MCP server integration. Covers authentication, authorization, data isolation, PII protection, rate limiting, and GDPR considerations.
+What the plugin and the MCP server commit to: sign-in, permissions, isolation, what is returned and what never is, limits, and what to do when something goes wrong.
 
-## OAuth Authentication
+## Sign-in
 
-The plugin authenticates with OAuth 2.1 (Authorization Code + PKCE), the mechanism defined by the MCP authorization specification. There is no API key to configure or store.
+The plugin signs in with OAuth 2.1 (Authorization Code with PKCE), as the MCP authorization specification defines it. There is no API key to configure or to store.
 
-### Sign-in flow
+On the first tool call, your client opens a Metrikia page in your browser. You sign in, read the permissions, and authorize or refuse. The client then keeps a short-lived access token and renews it on its own.
 
-On the first tool call, Claude Code discovers the authorization server from the MCP endpoint (a `401` with a `WWW-Authenticate` header pointing to the Protected Resource Metadata, RFC 9728), then runs a one-time browser sign-in: you log in to Metrikia and authorize the requested scopes. Claude Code receives a short-lived access token and a refresh token, and renews the session automatically.
+- The access token is opaque: it carries no data, and the server can end it at any time.
+- A session is bound to one person and one account. Each member of a team signs in on their own.
+- To stop: clear the sign-in of the Metrikia server in your client (`/mcp` in Claude Code), or remove the plugin.
 
-### Token handling
+## Permissions
 
-| Property | Value |
-|----------|-------|
-| Access token | Opaque, `mko_` prefix (never a JWT), short-lived |
-| Transport | `Authorization: Bearer mko_...` |
-| Refresh | Automatic, with refresh-token rotation (reused tokens revoke the whole chain) |
-| Storage | Managed by Claude Code's MCP client, not by a shell environment variable |
+| Permission | What it opens |
+|---|---|
+| `mcp:read` | The read tools, the Metrikia Assistant, and the agents open to the account |
+| `mcp:write` | `create_lead`, `transition_lead`, `create_deal`, `trigger_sync` |
 
-The access token is opaque and validated server-side by lookup, so it can be revoked immediately. The server stores only a keyed hash of each token, never the raw value.
+The authorization page lists what is asked before you accept. A write tool refuses a session that does not hold `mcp:write`.
 
-### Best practices
+On top of these permissions, each tool follows the role of the person in the account: a role that cannot open a page of the app does not get its figures here. The answer is then `access_denied` with the reason.
 
-1. **Authorize only the scopes you need.** The consent screen lists the requested access before you approve.
-2. **Revoke access when no longer needed.** In **Metrikia Settings**, security and access section, revoke the connected application. Revocation cuts off access immediately.
-3. **Sign in per account.** Each sign-in binds the session to your tenant.
+## One account per session
 
-## Scopes
+Your session reads your account, and no other. Knowing the id of something in another account gives nothing: the server answers that it does not exist.
 
-The OAuth access token is scoped to control access:
+## What the tools return
 
-| Scope | Purpose | Tools Granted |
-|-------|---------|---------------|
-| `mcp:read` | Read-only access to all data | list_leads, get_lead, list_campaigns, get_campaign_performance, get_creative_report, get_metrics, compare_performance, list_deals, get_attribution_journey, get_anomalies, get_budget_advice, get_sync_status, ask_diana |
-| `mcp:write` | CRM write operations | create_lead, transition_lead, create_deal, trigger_sync |
+| Never returned as a field | Returned |
+|---|---|
+| Email addresses of leads and customers | Names of leads |
+| Phone numbers | Status, source, dates, setter and closer ids of a lead |
+| Social profiles | Internal notes written on a lead |
+| Payment details | Amounts, currency and dates of deals |
+| | Customer journeys: channels, campaigns, landing pages |
+| | Ad figures, sales figures, campaign and ad names |
 
-MCP scopes are separate from REST API scopes (`leads:read`, `deals:write`, etc.). An MCP token cannot access REST API endpoints and vice versa.
+Names and notes are personal data. They reach your AI client when you ask for a lead: use them as you would in the app, and keep free text clean of contact details.
 
-Write tools require **both** `mcp:read` and `mcp:write` scopes. A token with only `mcp:write` will be rejected.
+`create_lead` accepts an email address and a phone number that you give, to link the lead to its visits. No tool gives them back.
 
-### Scope Enforcement
+An erased lead stays erased: its personal data is removed for good, it is absent from the lists, and no change applies to it.
 
-Scope checking happens at two levels:
+## Writing
 
-1. **Authentication layer:** the token authenticator validates the token and loads the authenticated user.
-2. **Tool level:** write tools explicitly check for the `mcp:write` scope before executing.
+- Metrikia and its agents change nothing on an ad account.
+- The four write tools are used after an explicit yes on each line, never by a skill on its own.
+- A change on an ad platform is made by the tool of that platform, if you connected one and asked for it, after the same yes.
 
-If a tool is called without the required scope, the server returns HTTP 403 Forbidden.
+## Untrusted text
 
-## Multi-Tenancy and Data Isolation
+A campaign name, a note or a page title can contain anything. The server tells the client to treat every tool result as data, and the skills repeat it: a text that reads like an order is reported, never followed.
 
-Every MCP request is bound to a single tenant. Cross-tenant data access is impossible by design.
+An agent reads the account through read tools only: no question makes it change anything.
 
-### Triple Enforcement
+## Limits
 
-| Layer | Mechanism | Description |
-|-------|-----------|-------------|
-| Data layer | Tenant filter | Every repository query includes a tenant filter |
-| ORM | Global filter | Active on all entities, applied automatically |
-| Tool | Explicit resolution | Every tool explicitly resolves and passes the tenant |
+| What | Limit |
+|---|---|
+| Tool calls | 60 calls per minute per user, with bursts up to 120 calls |
+| `ask_assistant` | 10 questions per 5 minutes per user |
+| Each agent | 10 questions per 5 minutes per user, 30 questions per 5 minutes for the whole account, and the daily budget of the account |
+| `trigger_sync` | 10 syncs per 5 minutes for the whole account, shared with the app |
+| Any request to the server | 600 requests per minute per user |
 
-### Isolation Guarantee
+A refused call comes back as a tool error that names the limit and the delay: `Rate limit reached (...). Retry in N seconds.` The response also carries `Retry-After`.
 
-- A user's session is bound to their tenant at sign-in.
-- The authenticated user and their tenant are resolved from the security token on every request.
-- Tools pass the tenant to every repository method. There is no way to query across tenants -- it does not exist in the repository interfaces.
-- Even if a user knows another tenant's UUID, the query will return no results because the tenant filter is applied at the data layer.
+When an agent or the Metrikia Assistant is temporarily unavailable, its tool says so and every other tool keeps working.
 
-## PII Masking
+## Privacy
 
-The MCP server enforces a strict PII invariant: **no personally identifiable information is ever returned in MCP responses.**
+- Metrikia processes the data of your account as your processor, under the data processing agreement of your contract. The sub-processors, the AI providers that write the answers of the agents and of the assistant among them, are listed on the [Trust page](https://metrikia.io/trust).
+- The tool results you read are sent to the AI client you chose. Its own terms apply to them.
+- Application servers and databases are hosted in the European Union.
 
-This is a design invariant, not a configurable option.
+## If something goes wrong
 
-### What is NEVER Exposed
+1. Clear the sign-in of the Metrikia server in the client, then remove the plugin.
+2. Write to support@metrikia.io with the dates you suspect.
+3. Sign in again once it is settled.
 
-| Data | Reason |
-|------|--------|
-| Email addresses | PII -- direct identifier |
-| Phone numbers | PII -- direct identifier |
-| Social media handles | PII -- can identify individuals |
-| Hashed PII (emailHash, nameHash, phoneHash) | Hashes are reversible with rainbow tables for common values |
-| IP addresses | PII under GDPR |
-| Social profiles (JSON) | May contain identifiers |
+## Checklist
 
-### What IS Exposed
-
-| Data | Reason |
-|------|--------|
-| Lead UUID | Non-identifying internal identifier |
-| Full name (firstName + lastName) | Necessary for human context; non-unique identifier |
-| Lead status | Business state, not PII |
-| Source label | Acquisition channel, not PII |
-| Estimated revenue | Business metric |
-| Timestamps (createdAt, updatedAt) | Operational data |
-| Campaign names | Business label |
-| Deal amounts and currency | Financial metric |
-| Attribution data (touchpoints, credits) | Anonymized journey data |
-| Ad performance metrics | Aggregated business data |
-
-### Enforcement Mechanism
-
-PII exclusion is enforced by **explicit field mapping** in every tool. There is no automatic entity serialization -- every field returned to the MCP client is deliberately chosen from an allowlist. Fields like email, phone, and any hashed PII are never on that allowlist, so they cannot leak through a future change by omission.
-
-## Rate Limiting
-
-Rate limits prevent abuse and protect shared infrastructure. They are implemented per token using a sliding window rate limiter.
-
-### Limits by Category
-
-| Category | Limit | Window | Applies To |
-|----------|-------|--------|------------|
-| `mcp_read` | 60 requests | 1 minute | All 12 read tools |
-| `mcp_diana` | 10 requests | 5 minutes | ask_diana only |
-| `mcp_write` | 30 requests | 1 minute | create_lead, transition_lead, create_deal |
-| `mcp_sync` | 5 requests | 1 hour | trigger_sync only |
-
-### Rate Limit Response
-
-When a limit is exceeded:
-
-```
-HTTP/1.1 429 Too Many Requests
-Retry-After: 42
-Content-Type: application/json
-
-{
-  "error": "rate_limit_exceeded",
-  "message": "Rate limit exceeded. Retry after 42 seconds.",
-  "retryAfter": 42
-}
-```
-
-Most AI clients (Claude Code, Cursor) automatically respect the `Retry-After` header and retry transparently.
-
-### Why Different Limits
-
-- **Read tools (60/min):** AI agents are bursty -- a skill may chain 5-10 tool calls in rapid succession. 60/min accommodates this while preventing abuse.
-- **Diana (10/5min):** Diana calls an AI model internally. This limit prevents cost overruns and AI-calling-AI loops.
-- **Write tools (30/min):** Lower than read to prevent accidental bulk operations (e.g., an agent creating 100 leads in a loop).
-- **Sync (5/hour):** Syncs trigger external API calls to Meta/Google/TikTok. Too many syncs can exhaust platform rate limits.
-
-## Circuit Breaker
-
-The `ask_diana` tool is protected by a circuit breaker to prevent cascading failures when Diana's AI backend is unavailable.
-
-### State Machine
-
-```
-         normal operation
-              |
-              v
-+--------+  5 consecutive  +---------+
-| CLOSED | ---failures----> |  OPEN   |
-+--------+                  +---------+
-    ^                           |
-    |                          30s cooldown
-    |                           |
-    |                           v
-    |                     +-----------+
-    +----success---------| HALF-OPEN |
-                          +-----------+
-                               |
-                            failure
-                               |
-                               v
-                          +---------+
-                          |  OPEN   |
-                          +---------+
-```
-
-### Parameters
-
-| Parameter | Value |
-|-----------|-------|
-| Failure threshold | 5 consecutive failures |
-| Failure window | 5 minutes |
-| Cooldown period | 30 seconds |
-| Half-open probes | 1 request |
-| Storage | Shared cache, keyed per tenant |
-
-### Behavior When Open
-
-When the circuit breaker is open, `ask_diana` returns immediately without calling the AI backend:
-
-```json
-{
-  "answer": "Diana is temporarily unavailable. Please try again in a moment.",
-  "conversationId": null
-}
-```
-
-This is not an error -- it is a graceful degradation. The rest of the MCP tools continue working normally.
-
-## Prompt Injection Protection
-
-The `ask_diana` tool tags all MCP-sourced questions with `source: "mcp"` in the DTO. This allows Diana's backend to:
-
-1. Apply MCP-specific guardrails (e.g., refuse to execute commands).
-2. Adapt response format for AI client consumption.
-3. Sandbox the conversation separately from the web UI conversations.
-
-Diana's backend also has its own prompt injection defenses (instruction hierarchy, output validation) which are not documented here as they are part of the main Metrikia platform.
-
-## GDPR Considerations
-
-### Data Processing
-
-- **MCP tools do not process PII.** Emails, phones, and hashes are never transmitted to the AI client.
-- **Names are exposed** for operational context. Under GDPR, names alone are contextual identifiers, not unique identifiers.
-- **Anonymized leads** are marked with `isAnonymized: true`. Their name fields contain placeholder values after GDPR anonymization.
-
-### Data Residency
-
-- The MCP server runs on EU-hosted infrastructure.
-- Tenant data, sessions, and authentication data are all hosted in the EU.
-
-### Right to Erasure
-
-When a lead exercises their right to erasure:
-1. `Lead::archive()` purges firstName, email, phone, and all hash fields.
-2. The lead's `isAnonymized` field is set to true.
-3. MCP tools will return the anonymized lead with placeholder data.
-4. Attribution data is retained but de-linked from PII.
-
-### Data Retention
-
-- MCP sessions: short-lived, capped TTL.
-- Access tokens: short-lived; refresh tokens are revoked immediately on sign-out.
-- Anomaly data: 30 days rolling window.
-- Performance data: retained per tenant retention policy.
-
-## Incident Response
-
-### Compromised Access
-
-1. Immediately revoke the connected application in **Metrikia Settings**, security and access section.
-2. Sign in again to issue a fresh token.
-3. Review audit logs for unauthorized access.
-
-### Suspicious Activity
-
-Rate limiting and circuit breaker automatically mitigate most abuse patterns. If you suspect unauthorized access:
-
-1. Revoke the connected application's access.
-2. Contact support@metrikia.io with the suspected timeframe.
-3. Metrikia can provide access logs for your tenant.
-
-## Security Checklist
-
-- [ ] Only the scopes you actually need are authorized (`mcp:read` only if write is not needed)
-- [ ] The connected application is reviewed periodically in **Metrikia Settings**
-- [ ] Team members sign in individually, not through a shared account
-- [ ] Unused connected applications are revoked promptly
+- [ ] Authorize the write permission only if you need it
+- [ ] Each member signs in on their own
+- [ ] Clear the sign-in on a computer that changes hands
+- [ ] Keep contact details out of notes and campaign names
