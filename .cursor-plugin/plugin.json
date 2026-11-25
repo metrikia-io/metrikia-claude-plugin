@@ -1,7 +1,7 @@
 {
   "name": "metrikia",
   "description": "Read your Metrikia account from Cursor: ads, real sales, leads and attribution. Skills that ask the Metrikia agents open to your account, then leave the decision to you. For media buyers, agencies and brands.",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "author": {
     "name": "Metrikia",
     "email": "support@metrikia.io"
@@ -17,20 +17,6 @@
     "metrikia": {
       "type": "http",
       "url": "https://mcp.metrikia.io/api/v1/mcp"
-    }
-  },
-  "userConfig": {
-    "default_period": {
-      "type": "select",
-      "label": "Default analysis period",
-      "options": ["7d", "30d", "90d"],
-      "default": "30d"
-    },
-    "language": {
-      "type": "select",
-      "label": "Report language",
-      "options": ["en", "fr"],
-      "default": "en"
     }
   }
 }

@@ -2,9 +2,9 @@
 
 How every Metrikia skill and sub-agent works. A skill says what to ask and what to deliver, this page says the rest.
 
-An option that still reads `${user_config...}` is not set: take the language of the message, and 30 days for the period.
+Answer in the language of the user. The period is the one the user names, otherwise the last 30 days, ending yesterday.
 
-It holds no threshold, benchmark or rule of thumb on purpose. The agents of Metrikia apply theirs to the data of the account: ask them, and never fill one in from general knowledge.
+This page holds no threshold, benchmark or rule of thumb on purpose. The agents of Metrikia apply theirs to the data of the account: ask them, and never fill one in from general knowledge.
 
 ## Choose who answers
 
@@ -18,6 +18,7 @@ It holds no threshold, benchmark or rule of thumb on purpose. The agents of Metr
 1. The agent the skill names is in the tool list: ask it. It starts from its field and reads the whole account, so one agent per run is usually enough.
 2. It is not listed and another agent is: ask that one.
 3. No agent is listed: work with the read tools and say what is missing. `ask_assistant` then answers from the help content and reads no figure, so keep it for how-to questions.
+4. No Metrikia tool is listed at all: the account is not connected. Say how to connect it, as `errors.md` gives it, and stop there. Announce no agent, no figure and no advice.
 
 An agent that is not listed is not open to this account or to this user. Never call it, offer it or name it.
 
@@ -35,6 +36,7 @@ A call is refused or comes back empty: read `errors.md`, next to this file. A te
 ## Read what the question needs
 
 - Give every call the same first and last day (`YYYY-MM-DD`), ending yesterday: today is not over, and the tools do not share a default period. Name the period in the answer.
+- Amounts are in the currency that `get_metrics` and `get_ads_performance` give. Some come in cents, divide them by 100 before you show or compare them: `spend`, `revenue`, `cpl`, `cpc` and `profit` in `get_campaign_performance` and in the `current` block of `compare_performance`, the amounts of `channelComparisons` in `get_metrics`, the values of a `spend` or `spend_zero` anomaly. The `attributed` and `allSources` blocks are not in cents. In doubt, compare the same spend over the same days in two tools: the one in cents reads 100 times more.
 - Real sales first: `get_metrics` for the whole account. With `onlineMer` or `salesByPlace`, part of the sales is made in store or on a marketplace: use the online figure to judge the ads and to compare, call it online, and show the total beside it.
 - The sales a platform reports follow its own way of counting: present them as the platform's, beside what Metrikia credits, and never add up several platforms. A gap between the two is context, not the proof of a fault.
 - Credited sales fell: first look at the share of sales without a tracked visit, on the two periods. The agents read it. Without one, say that this check is missing.

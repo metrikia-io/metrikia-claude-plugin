@@ -7,7 +7,9 @@ description: Use when figures disagree or look wrong, when sales, leads or conve
 
 Can I decide on these figures: what is reliable, what is read with care, what is not usable, and the first thing to fix.
 
-First read `${CLAUDE_PLUGIN_ROOT}/references/working-method.md`, once per session (from this file, `../../references/working-method.md`). Language: the one the user writes in, otherwise `${user_config.language}`. Period: the one the user names, otherwise `${user_config.default_period}`.
+First read `references/working-method.md`, in the folder of this skill. Every Metrikia skill holds the same page: once per session is enough. Answer in the language of the user. Period: the one the user names, otherwise the last 30 days, ending yesterday.
+
+Three rules hold even without that page: every call on a period carries the same first and last day, the figures of an agent stay as written, and the user decides line by line. No Metrikia tool is listed: the account is not connected (`/mcp` in Claude Code, Customize then Connectors on claude.ai), give no figure and no advice of your own. `references/errors.md` has the steps, and what to do when a call is refused or empty.
 
 ## Read
 

@@ -18,7 +18,7 @@ This is the state of the day, not a conversion rate: the leads of one status did
 
 The two lists take no date. Read them with `limit: 100` and `page: 1`, then `2`, and so on. Leads come newest first by `createdAt`, deals by `closedAt`. Stop at the first row before the period, or when the rows read reach `total`. Say it when you stop before the end.
 
-A `pending` or `trial_pending` deal is not a sale. Amounts are in the `currency` of each deal: never add two currencies.
+A `pending` or `trial_pending` deal is not a sale. `totalAmount` is in the `currency` of the deal, not in cents: never add two currencies.
 
 ## By source
 

@@ -1,13 +1,15 @@
 ---
 name: budget-optimizer
-description: Use when the user asks where to put the ad money, which budgets to raise, lower or cut, how to split an amount between campaigns or platforms, or how to prepare the budgets of a sales event.
+description: Use when the user asks where to put the ad money, which budgets to raise, lower or cut, how to split an amount between campaigns or platforms, how to prepare the budgets of a sales event such as Black Friday, or says "où mettre mon budget".
 ---
 
 # Budget optimizer
 
 A budget plan to decide line by line: each object, its value today, its next value, and what the whole plan changes.
 
-First read `${CLAUDE_PLUGIN_ROOT}/references/working-method.md`, once per session (from this file, `../../references/working-method.md`). Language: the one the user writes in, otherwise `${user_config.language}`. Period: the one the user names, otherwise `${user_config.default_period}`.
+First read `references/working-method.md`, in the folder of this skill. Every Metrikia skill holds the same page: once per session is enough. Answer in the language of the user. Period: the one the user names, otherwise the last 30 days, ending yesterday.
+
+Three rules hold even without that page: every call on a period carries the same first and last day, the figures of an agent stay as written, and the user decides line by line. No Metrikia tool is listed: the account is not connected (`/mcp` in Claude Code, Customize then Connectors on claude.ai), give no figure and no advice of your own. `references/errors.md` has the steps, and what to do when a call is refused or empty.
 
 ## Read
 
@@ -23,7 +25,7 @@ Follow-up with the `conversationId` when the user keeps some lines only, adds a 
 
 ## Without an agent
 
-`get_budget_advice`, with `language` set to the language of the answer. Use `analysis.budgetDecisions` as it stands: verdict, current and suggested budget of each campaign that spent yesterday, reason in plain words. These decisions are final, add no other move. Leave the `advice` text aside: it comments, it does not decide.
+`get_budget_advice`, with `language` set to the language of the answer. Use `analysis.budgetDecisions` as it stands: verdict, current and suggested budget of each campaign that spent yesterday, reason in plain words. Its amounts are in the currency of the account, not in cents. These decisions are final, add no other move. Leave the `advice` text aside: it comments, it does not decide.
 
 - `targetMissing: true`: nothing is decided. The target cost per purchase is missing in the brand sheet, and `ask_assistant` tells where to fill it.
 - `access_denied`, or no decision: show the spend and the sales by campaign (leads, appointments and deals for a lead account), and say what is missing to decide.

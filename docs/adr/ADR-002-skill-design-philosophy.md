@@ -15,7 +15,7 @@ Skills stay markdown instructions. What they hold has changed:
 - **Principle 2 is replaced.** A skill no longer teaches warning signals or thresholds. Copied into a skill, they are general, they age, and they read as facts about an account they never looked at. The agents of Metrikia apply theirs to the data of the account, so a skill holds the method only: what to check and in which order, whom to ask and with which question, what to deliver, which mistakes to avoid.
 - **One good question replaces a long list of calls.** A skill asks the agent whose field it is, when the account lists it, and continues the same conversation for a follow-up. Without an agent, it works with the read tools and says what is missing.
 - **Principle 3 is narrowed.** The structure is one screen that ends with numbered lines to decide on. The user decides, and nothing is applied without a yes on each line.
-- **Principle 4 and the repeated sections moved.** The method and the error handling are written once, in `references/`, and read when needed.
+- **Principle 4 and the repeated sections moved.** The method and the error handling are written once, in `references/`, and read when needed. Each skill carries a copy that a script writes, so that it stands on its own in a chat.
 - **The process graphs are gone.** They drew linear lists, and one of them disagreed with its own steps.
 
 The sections below are the decision as taken in April 2026.

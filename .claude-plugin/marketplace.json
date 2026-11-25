@@ -5,14 +5,14 @@
     "email": "support@metrikia.io"
   },
   "metadata": {
-    "description": "Your Metrikia account in Claude Code: ads, real sales, leads and attribution"
+    "description": "Your Metrikia account in Claude: ads, real sales, leads and attribution"
   },
   "plugins": [
     {
       "name": "metrikia",
       "source": "./",
       "description": "Read your Metrikia account from Claude: ads, real sales, leads and attribution. Skills that ask the Metrikia agents open to your account, then leave the decision to you.",
-      "version": "2.2.0"
+      "version": "2.2.1"
     }
   ]
 }

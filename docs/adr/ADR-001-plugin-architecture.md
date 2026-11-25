@@ -18,10 +18,12 @@ Two things described below have since changed; the original decision and its rea
 
 ## Update -- 2026-11
 
-The decision holds. Three details below have changed:
+The decision holds. Five details below have changed:
 - **Counts:** the numbers of tools and skills below are those of April 2026. The current ones are in the [README](../../README.md) and in [TOOLS-REFERENCE.md](../TOOLS-REFERENCE.md).
 - **Expertise:** skills and sub-agents no longer carry an expertise of their own. They hold the method and ask the agents of Metrikia, listed when the account has access to them. See the update of the same month in [ADR-002](ADR-002-skill-design-philosophy.md).
-- **Shared text:** what every skill repeated (method, error handling) lives in `references/`.
+- **Shared text:** what every skill repeated (method, error handling) lives in `references/`. A script copies it into each skill, because a chat on claude.ai loads the folder of a skill and nothing else.
+- **MCP server registration:** in `.mcp.json` at the root of the plugin, where claude.ai, Cowork and Claude Code read it, and no longer in `plugin.json`.
+- **User configuration:** none. Claude Code replaces an option in a skill only when a value was saved, and the other clients document no replacement. A skill follows the language of the message and the period the user names.
 
 ## Context
 

@@ -7,11 +7,13 @@ description: Use when the user asks which channels really bring the sales, which
 
 Who brings the sales: what opens the journeys, what closes them, and what that changes.
 
-First read `${CLAUDE_PLUGIN_ROOT}/references/working-method.md`, once per session (from this file, `../../references/working-method.md`). Language: the one the user writes in, otherwise `${user_config.language}`. Period: the one the user names, otherwise `${user_config.default_period}`.
+First read `references/working-method.md`, in the folder of this skill. Every Metrikia skill holds the same page: once per session is enough. Answer in the language of the user. Period: the one the user names, otherwise the last 30 days, ending yesterday.
+
+Three rules hold even without that page: every call on a period carries the same first and last day, the figures of an agent stay as written, and the user decides line by line. No Metrikia tool is listed: the account is not connected (`/mcp` in Claude Code, Customize then Connectors on claude.ai), give no figure and no advice of your own. `references/errors.md` has the steps, and what to do when a call is refused or empty.
 
 ## Read
 
-`get_metrics` once: MER and its trend, `attributedByChannel`, and `roas.channelComparisons`, what Metrikia credits to each platform next to what the platform reports. The amounts of `channelComparisons` are in cents: divide them by 100. Take the dates from `period`.
+`get_metrics` once: MER and its trend, `attributedByChannel`, and `roas.channelComparisons`, what Metrikia credits to each platform next to what the platform reports. The amounts of `channelComparisons` are in cents: divide them by 100. Those of `attributedByChannel` are not. Take the dates from `period`.
 
 ## Ask the data scientist
 

@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.2.1] - 2026-11-25
+
+### Changed
+- Each skill carries the pages it reads, in its own `references/` folder, and names them by their path from that folder. A chat on claude.ai loads the folder of a skill and nothing else. `references/` stays the only source: `scripts/sync-references.sh` writes the copies, and its `--check` refuses one that differs.
+- A skill holds in its body the three rules that matter most, for a client that cannot open the page.
+- The MCP server is declared in `.mcp.json`, where claude.ai, Cowork and Claude Code read it. The URL is the same.
+- A skill answers in the language of the message and reads the period the user names, otherwise the last 30 days.
+- The session start hook prints its text and checks the server in two plain commands.
+- README: how to add Metrikia on claude.ai, what to do when the sign-in is refused or the plugin is off, what the plugin runs and sends.
+- The manifest gives the links to the documentation, the support, the privacy policy and the terms.
+- The description of `budget-optimizer` holds more of the words people use for a sales event.
+
+### Fixed
+- Amounts in cents. `compare_performance` gives the amounts of its `current` block in cents, like `get_campaign_performance`, and its other blocks in currency units: `weekly-report` and `campaign-audit` did not say so, and a cost per lead could read 100 times too high. The skills say it where they use the field, for the spend anomalies too, and the tools reference gives the unit of every amount.
+- A skill that finds no Metrikia tool says how to connect the account and stops there.
+
+### Removed
+- The `default_period` and `language` options. Claude Code replaces an option in a skill only when a value was saved: without one, the skill showed the name of the variable.
+
 ## [2.2.0] - 2026-11-25
 
 ### Added

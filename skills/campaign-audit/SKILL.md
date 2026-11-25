@@ -7,13 +7,15 @@ description: Use when the user names one campaign and asks why it drops, whether
 
 One campaign, read in its account: does it hold the goal, what limits it, what to change on it.
 
-First read `${CLAUDE_PLUGIN_ROOT}/references/working-method.md`, once per session (from this file, `../../references/working-method.md`). Language: the one the user writes in, otherwise `${user_config.language}`. Period: the one the user names, otherwise `${user_config.default_period}`.
+First read `references/working-method.md`, in the folder of this skill. Every Metrikia skill holds the same page: once per session is enough. Answer in the language of the user. Period: the one the user names, otherwise the last 30 days, ending yesterday.
+
+Three rules hold even without that page: every call on a period carries the same first and last day, the figures of an agent stay as written, and the user decides line by line. No Metrikia tool is listed: the account is not connected (`/mcp` in Claude Code, Customize then Connectors on claude.ai), give no figure and no advice of your own. `references/errors.md` has the steps, and what to do when a call is refused or empty.
 
 ## Read
 
 1. `get_ads_performance` with `level: "campaigns"` and `limit: 200`: find the campaign by its name. Two names match: ask which one. None does: `list_campaigns`. Keep its `id`, its `status`, its spend, its budget, its bidding and learning state.
 2. The same read on yesterday alone: does it still spend? Paused, or no spend: say it, stop there, and offer to look at what carries the sales now.
-3. `compare_performance` with its `campaignId` and the dates of the period: what moved on it.
+3. `compare_performance` with its `campaignId` and the dates of the period: what moved on it. In `current`, `spend`, `revenue`, `cpl`, `cpc` and `profit` are in cents, its `spend` reads 100 times the one of the campaign row: divide them by 100. `attributed` is not in cents.
 
 ## Ask the media buyer
 
@@ -36,4 +38,4 @@ Read the campaign at `level: "adsets"` then `level: "ads"` with its `campaignId`
 3. What limits it and since when, what could contradict it.
 4. The changes, numbered, on the campaign or on a named ad set or ad. Ask which ones the user keeps.
 
-Why the platform counts more sales than Metrikia credits: `get_campaign_performance` splits its count between after a click and without one, when the platform gives it.
+Why the platform counts more sales than Metrikia credits: `get_campaign_performance` splits its count between after a click and without one, when the platform gives it. Its amounts are in cents too, except those of `attributed`.

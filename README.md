@@ -1,67 +1,65 @@
-# Metrikia Plugin for Claude Code
+# Metrikia plugin for Claude
 
-Read your Metrikia account from Claude Code, ask the Metrikia agents open to your account, and get a short list of lines to decide on. Metrikia changes nothing on your ad accounts: the decision stays yours.
+Read your Metrikia account from Claude, ask the Metrikia agents open to your account, and get a short list of lines to decide on. Metrikia changes nothing on your ad accounts: the decision stays yours.
 
 ## What is Metrikia?
 
 Metrikia is a SaaS platform that links what you spend on ads (Meta, Google, TikTok and other platforms) to the sales you make: store orders, payments and CRM deals. It shows what the ads really bring, next to what each ad platform reports. It is built for media buyers, creative strategists, performance managers, agencies and the brands they work for.
 
-## Installation
+## Install
 
-### From GitHub (recommended)
+### Claude Code
 
-No API key to configure. The plugin signs in with OAuth: the first time you call a Metrikia tool, your browser opens to connect your account, and the session renews automatically.
-
-In Claude Code:
+In a session:
 
 ```bash
-# Step 1: Add the marketplace
 /plugin marketplace add metrikia-io/metrikia-claude-plugin
-
-# Step 2: Install the plugin
 /plugin install metrikia@metrikia-plugin
-
-# Step 3: Restart Claude Code
-exit
-claude
+/reload-plugins
 ```
 
-On the first Metrikia tool call, a browser window opens. Sign in to Metrikia (if needed) and click **Authorize**. That is all: no key to paste.
+From a clone, give its path to the first command: `/plugin marketplace add /path/to/metrikia-claude-plugin`. When a skill runs, Claude Code may ask to read one of its pages: they are text files of the plugin.
 
-### From Local Path
+### claude.ai and the Claude app
 
-```bash
-# If you cloned the repo locally
-git clone https://github.com/metrikia-io/metrikia-claude-plugin.git
-/plugin marketplace add /path/to/metrikia-claude-plugin
-/plugin install metrikia@metrikia-plugin
-```
+The connector opens your account, the plugin brings the skills. Add both, in this order.
 
-### Verify Installation
+1. **The connector.** Open **Customize**, then **Connectors**. Select **Add**, then **Add custom connector**. Name it Metrikia, give this URL, and keep the settings marked **Detected**:
 
-```bash
-# Open plugin manager
-/plugin
+   ```
+   https://mcp.metrikia.io/api/v1/mcp
+   ```
 
-# Go to "Installed" tab to see metrikia plugin
-# Go to "Errors" tab if skills don't appear
-```
+   Select **Add**, then **Connect**, and sign in to Metrikia. On a Team or Enterprise plan, an Owner adds the connector once in **Organization settings**, **Connectors**, and each member connects with their own account.
 
-The plugin runs an automatic health check at startup. If you see **"Metrikia Plugin Active"**, everything is connected.
+2. **The plugin.** Open **Customize**, then **Plugins**, and select **Add**. Choose **Add marketplace** and enter `metrikia-io/metrikia-claude-plugin`, or choose **Upload plugin** and give the ZIP of this repository (on GitHub: **Code**, **Download ZIP**). Add **Metrikia**. Its **Connectors** tab shows the connector of step 1: the URL is the same, so you have one set of tools.
 
-### Official Marketplace (coming soon)
+The skills need **Code execution and file creation**, in **Settings**, **Capabilities**.
 
-> When published to the official Claude Code marketplace:
->
-> ```bash
-> claude plugin install metrikia
-> ```
+| | Chat | Cowork | Claude Code |
+|---|---|---|---|
+| Skills | Yes | Yes | Yes |
+| Metrikia tools | Once connected | Once connected | Once signed in |
+| Sub-agents, session start | No | Yes | Yes |
 
-## Health Check
+## Sign in
 
-At every session start, the plugin verifies that the MCP server at `mcp.metrikia.io` is reachable. Authentication is handled by OAuth on the first tool call (a one-time browser sign-in), so there is no key to check.
+There is no API key. In Claude Code, run `/mcp`, select the Metrikia server (`plugin:metrikia:metrikia`), then **Authenticate**. Your browser opens Metrikia: sign in if needed, read the permissions and click **Authorize**. The session renews on its own. On claude.ai, the connector asks you to sign in when you select **Connect**.
 
-If the server is unreachable, you get a clear warning with instructions, no silent failures.
+### The sign-in is refused, or never opens
+
+1. The browser does not open: copy the address that Claude Code shows and open it yourself. The browser ends on a connection error: paste the whole address of that page in Claude Code.
+2. Check which Metrikia account the browser is signed in to. Then try again: `/mcp`, the Metrikia server, **Clear authentication** if it shows, **Authenticate**.
+3. Still refused in Claude Code: add the connector on claude.ai, as above. Claude Code gets it when you sign in to it with the same claude.ai account. The plugin goes first when both give the same URL, so `/mcp` lists the connector as hidden and says how to use it instead.
+4. Write to support@metrikia.io with the message as it reads, and the time.
+
+### The plugin is off
+
+1. Run `/plugin`, open the **Installed** tab, select **Metrikia**, then **Enable plugin**, and close the panel.
+2. Run `/reload-plugins`, or `/reload-plugins --force` when Claude Code says that the reload changes the MCP tools.
+3. Run `/mcp`: the Metrikia server is listed. Sign in there if it asks.
+
+On claude.ai, open the plugin in **Customize**, **Plugins**, and turn its switch on. The **Errors** tab of `/plugin` says why a plugin does not load.
 
 ## What's Inside
 
@@ -78,6 +76,8 @@ If the server is unreachable, you get a clear warning with instructions, no sile
 | `/metrikia:attribution-deep-dive` | Who really brings the sales: what opens the journeys, what closes them? |
 | `/metrikia:trust-check` | Can I decide on these figures, and what is the first thing to fix? |
 
+Ask your question in plain words: Claude picks the skill. In the chat of claude.ai, `/` lists them too.
+
 ### How a skill works
 
 1. It asks one good question to the Metrikia agent whose field it is, when your account lists that agent. The agent reads your account and answers with your figures.
@@ -85,7 +85,7 @@ If the server is unreachable, you get a clear warning with instructions, no sile
 3. It gives you one screen: what is true, what changed, what explains it, and the few lines to decide on.
 4. You decide. If you have a tool of your ad platform connected and ask for it, a line is applied there after your explicit yes on that line.
 
-A skill holds the method: what to check, whom to ask, what to deliver. The expertise comes with the answers of the agents.
+A skill holds the method: what to check, whom to ask, what to deliver. The expertise comes with the answers of the agents. It answers in the language of your message and reads the period you name, otherwise the last 30 days. There is no option to set.
 
 ### Agents of Metrikia
 
@@ -125,6 +125,14 @@ They work on your side, prepare the questions and hand you the list to decide. T
 
 The full reference is in [docs/TOOLS-REFERENCE.md](docs/TOOLS-REFERENCE.md).
 
+## What the plugin runs and sends
+
+- At session start, in Claude Code and Cowork, it prints `hooks/session-context.md` and runs `hooks/health-check.sh`. This script sends one request to `https://mcp.metrikia.io/api/v1/mcp`, with no credential and no data, to say whether the server answers.
+- When Claude calls a Metrikia tool, the call goes to that same server with your sign-in: dates, ids, filters, the question for an agent, and the lead or the sale you ask it to write. The answer comes back to Claude.
+- It sends nothing anywhere else. It stores nothing and installs nothing.
+
+What the server commits to is in [docs/SECURITY.md](docs/SECURITY.md) and in the [privacy policy](https://metrikia.io/privacy).
+
 ## Examples
 
 > "What are my three actions for today? The grey lamp is sold out."
@@ -157,20 +165,22 @@ The full reference is in [docs/TOOLS-REFERENCE.md](docs/TOOLS-REFERENCE.md).
 
 Ask your next question in the same conversation: the agent keeps the thread.
 
-## Configuration
-
-The plugin prompts for these options when enabled:
-
-| Option | Description |
-|--------|-------------|
-| `default_period` | Period a skill reads when you name none: 7d, 30d, or 90d (default: 30d) |
-| `language` | Language of the answers when your message does not tell: en or fr (default: en) |
-
 ## Requirements
 
-- [Claude Code](https://claude.ai/claude-code), latest version (plugin marketplaces and MCP OAuth require a recent release)
-- A Metrikia account (you authorize access with a one-time browser sign-in, no API key needed)
-- `curl` (for automatic health check at startup)
+- A recent [Claude Code](https://claude.ai/claude-code), or claude.ai on a plan that has skills
+- A Metrikia account
+- `curl` for the check at session start. Without it, the check is skipped
+
+## For contributors
+
+`references/` holds the pages that every skill shares, and it is their only source. A chat on claude.ai loads the folder of a skill and nothing else, so each skill carries a copy. Edit `references/`, never a copy, then:
+
+```bash
+./scripts/sync-references.sh           # write the copies
+./scripts/sync-references.sh --check   # exit 1 when a skill does not stand on its own
+```
+
+The check refuses a copy that differs, is missing or has no source, a skill that does not point to its pages, and a variable or a path that only some clients resolve. Run it before every commit, and `claude plugin validate . --strict` from a clean checkout before a release.
 
 ## Support
 

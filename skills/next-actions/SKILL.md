@@ -7,7 +7,9 @@ description: Use when the user wants a few actions rather than a report, asks wh
 
 Three actions to take today, on real objects, each with its reason. Another number when the user gives one.
 
-First read `${CLAUDE_PLUGIN_ROOT}/references/working-method.md`, once per session (from this file, `../../references/working-method.md`). Language: the one the user writes in, otherwise `${user_config.language}`.
+First read `references/working-method.md`, in the folder of this skill. Every Metrikia skill holds the same page: once per session is enough. Answer in the language of the user.
+
+Three rules hold even without that page: every call on a period carries the same first and last day, the figures of an agent stay as written, and the user decides line by line. No Metrikia tool is listed: the account is not connected (`/mcp` in Claude Code, Customize then Connectors on claude.ai), give no figure and no advice of your own. `references/errors.md` has the steps, and what to do when a call is refused or empty.
 
 ## Ask the media buyer
 
@@ -23,8 +25,8 @@ Follow-up with the `conversationId`: the action the user refuses, with the reaso
 
 1. `get_sync_status`: a late source is the first action.
 2. `get_ads_performance` with `level: "campaigns"`: what runs, and whether the sales of the account reach the ads.
-3. `get_anomalies`: the open ones, most severe first.
-4. The decisions of the day from `get_budget_advice` when it answers (see the budget-optimizer skill).
+3. `get_anomalies`: the open ones, most severe first. The values of a `spend` or `spend_zero` anomaly are in cents: divide them by 100.
+4. The decisions of the day from `get_budget_advice` when it answers (see the budget-optimizer skill). Their amounts are not in cents.
 5. For an account that sells through leads: how many wait at `new`, `no_response` and `no_show` (`list_leads` with `limit: 1`, read `total`).
 
 Give what these tools show or decide, even if it makes fewer than three actions.
