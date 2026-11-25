@@ -2,9 +2,29 @@
 
 ## [2.2.0] - 2026-11-25
 
+### Added
+- `/metrikia:next-actions`: a few actions for today, each on a real object with its reason.
+- `/metrikia:trust-check`: whether the figures can carry a decision, what is not reliable and the first thing to fix.
+- `references/`: the working method that every skill and sub-agent follows, and what to do when a call is refused. Written once, read when needed.
+
 ### Changed
-- `ask_assistant` replaces `ask_diana` in the skills, agents, session context and docs, to follow version 1.3.0 of the Metrikia MCP server. The server no longer lists the former name but still accepts it, with the same answer and the same limit.
-- The texts speak of roles only: the AI assistant is the Metrikia Assistant. The steps of each skill and their order do not change.
+- The skills are rewritten around the agents of Metrikia. A skill asks one good question to the agent whose field it is, when the account lists it, and continues the same conversation for a follow-up. Without an agent, it works with the read tools and says what is missing.
+- A skill holds the method only: what to check, whom to ask, what to deliver. It holds no threshold or benchmark any more.
+- Every skill answers on one screen and ends with the lines to decide on. The user decides, and nothing is applied without a yes on each line.
+- The two sub-agents prepare the questions and hand back the conversations they opened. They are not the agents of Metrikia.
+- The assistant tool is `ask_assistant`, to follow version 1.3.0 of the Metrikia MCP server. The former name is no longer listed and still answers. The texts speak of roles only.
+- The `default_period` and `language` options have a default value and are used by the skills.
+- The MCP server entry of the Claude Code manifest has a `timeout`: an agent that reads the account can take more than a minute to answer.
+
+### Fixed
+- `lead-pipeline` and `attribution-deep-dive` use the lead and deal statuses of the server, count with `total` and page through the lists. Their former filters named statuses that do not exist, so the counts were those of the whole list.
+- The ads are read and ranked with the figures of the Ads page (`get_ads_performance`).
+- The steps of `budget-optimizer` and its graph did not agree. The graphs of the skills are removed: they drew linear lists.
+- The tools reference follows the server: tools, parameters, values, limits and error messages.
+- The sample reports with invented figures are removed from the skills guide and the README.
+
+### Removed
+- Internal details of the server in the architecture and security pages.
 
 ## [2.1.0] - 2026-07-27
 
