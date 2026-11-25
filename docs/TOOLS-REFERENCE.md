@@ -1,10 +1,10 @@
 # Metrikia MCP Tools Reference
 
-Complete reference for all 17 MCP tools exposed by the Metrikia server. Each tool is auto-discovered by the backend at boot time.
+Complete reference for all 17 MCP tools exposed by the Metrikia server.
 
 **Endpoint:** `https://mcp.metrikia.io/api/v1/mcp`
 **Protocol:** JSON-RPC 2.0 over HTTP
-**Authentication:** `Authorization: Bearer mko_xxx` (OAuth 2.1 access token, see [SECURITY.md](SECURITY.md))
+**Authentication:** OAuth 2.1 (see [SECURITY.md](SECURITY.md))
 
 ---
 
@@ -757,7 +757,6 @@ Ask the Metrikia Assistant, the AI assistant of Metrikia, strategic questions ab
 
 **Scope:** `mcp:read`
 **Rate limit:** 10/5min (assistant)
-**Circuit breaker:** 5 failures -> open (30s) -> half-open (1 probe)
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
@@ -777,7 +776,7 @@ Ask the Metrikia Assistant, the AI assistant of Metrikia, strategic questions ab
 | `answer` | string | The Metrikia Assistant's response |
 | `conversationId` | string or null | Conversation UUID (for context continuity) |
 
-**When circuit breaker is open:**
+**When the assistant is temporarily unavailable:**
 ```json
 {
   "answer": "Metrikia Assistant is temporarily unavailable. Please try again in a moment.",
@@ -942,7 +941,7 @@ Create a CRM deal linked to a lead. Amount is in cents.
 
 ### trigger_sync
 
-Trigger an asynchronous data source sync. Dispatches a message to the sync worker queue.
+Trigger an asynchronous data source sync.
 
 **Scope:** `mcp:write`
 **Rate limit:** 5/hour (sync)
@@ -995,7 +994,7 @@ Trigger an asynchronous data source sync. Dispatches a message to the sync worke
 | `dataSourceId` | string or null | Data source UUID (null if all sources) |
 
 **Notes:**
-- Sync is asynchronous. The tool returns immediately after dispatching the command to RabbitMQ.
+- Sync is asynchronous. The tool returns immediately.
 - Use `get_sync_status` after 1-2 minutes to verify the sync completed.
 - Syncing all sources at once counts as a single rate limit hit.
 

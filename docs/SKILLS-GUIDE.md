@@ -477,7 +477,7 @@ Recommendations
 - Focus on Shapley attribution, not just linear or time-decay. Shapley is the most mathematically rigorous model for assigning credit across touchpoints.
 - If average journey length is >7 touchpoints, you may have a very long consideration cycle. Adjust your budget evaluation window accordingly (use `period="90d"` instead of `30d`).
 - "Direct" conversions that have prior paid touchpoints are not truly direct. MTA reveals this hidden contribution.
-- A large gap between platform-reported conversions and MTA-attributed conversions often indicates cross-device tracking gaps or deduplication issues. Check if Metrikia's lead matching (HashedPii) is catching these.
+- A large gap between platform-reported conversions and MTA-attributed conversions often indicates cross-device tracking gaps or deduplication issues.
 
 ---
 

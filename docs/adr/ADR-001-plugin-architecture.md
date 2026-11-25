@@ -122,6 +122,5 @@ The plugin provides:
 
 ## References
 
-- [ADR-085 -- MCP Server Architecture](https://github.com/BULDEE/metrikia/blob/main/docs/adr/ADR-085-mcp-server-architecture.md) (main project)
 - [MCP Protocol Specification](https://modelcontextprotocol.io)
 - [Claude Code Plugin Documentation](https://code.claude.com/docs/en/plugins)
