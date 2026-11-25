@@ -1,72 +1,39 @@
 ---
 name: campaign-audit
-description: Deep audit of a specific campaign - performance metrics, creative breakdown, attribution journey, and optimization recommendations
+description: Use when the user names one campaign and asks why it drops, whether it works, or whether to keep, change or stop it, or says "audit this campaign", "audite cette campagne".
 ---
 
-# Campaign Audit
+# Campaign audit
 
-Perform a deep audit of a specific campaign.
+One campaign, read in its account: does it hold the goal, what limits it, what to change on it.
 
-## Prerequisites
-Ask the user which campaign to audit. Use `list_campaigns` to show available campaigns if needed.
+First read `${CLAUDE_PLUGIN_ROOT}/references/working-method.md`, once per session (from this file, `../../references/working-method.md`). Language: the one the user writes in, otherwise `${user_config.language}`. Period: the one the user names, otherwise `${user_config.default_period}`.
 
-## Process
+## Read
 
-1. **Campaign performance**
-   - Call `get_campaign_performance` with the campaignId and last 30 days
-   - Call `compare_performance` for the same campaign to see trends
+1. `get_ads_performance` with `level: "campaigns"` and `limit: 200`: find the campaign by its name. Two names match: ask which one. None does: `list_campaigns`. Keep its `id`, its `status`, its spend, its budget, its bidding and learning state.
+2. The same read on yesterday alone: does it still spend? Paused, or no spend: say it, stop there, and offer to look at what carries the sales now.
+3. `compare_performance` with its `campaignId` and the dates of the period: what moved on it.
 
-2. **Creative breakdown**
-   - Call `get_creative_report` filtered by campaign
-   - Identify top and underperforming creatives
+## Ask the media buyer
 
-3. **Lead quality**
-   - Call `list_leads` to find leads attributed to this campaign
-   - For key leads, call `get_attribution_journey` to see the full path
+Cutting, holding or raising a campaign is a decision on money, and `ask_media_buyer` puts it back in the account before it answers.
 
-4. **Ask the Metrikia Assistant**
-   - Call `ask_assistant`: "Audit campaign [name]: what's working, what's not, and what should I change?"
+> Over [period], does the campaign "[real name]" on [platform] hold my goal ([goal]), what limits it, what explains its change since [day or the period before], and what should I change on it, from what value to what value? [facts, constraints]
 
-## Output Format
+Follow-up with the `conversationId`: a constraint, a fact, or the one change to dig. When the answer points to the ads, or the user asks about them, the second question goes to `ask_creative_strategist` instead.
 
-### Campaign Overview
-Key metrics: Spend, Revenue, ROAS, CRM ROAS, CPL, CPC, CTR
+> In the campaign "[real name]", over [period], which ads carry the sales and why, which wear out, and what should replace them?
 
-### Creative Performance Matrix
-Table of all creatives ranked by efficiency
+## Without an agent
 
-### Attribution Insights
-How leads from this campaign convert - journey patterns, time to conversion
+Read the campaign at `level: "adsets"` then `level: "ads"` with its `campaignId`, and its line in `analysis.budgetDecisions` of `get_budget_advice` when the tool answers. Show what Metrikia credits next to what the platform reports, and the `crm` block (leads, appointments, deals) for a lead account. State no cause, say what it would take to find it.
 
-### Optimization Recommendations
-Actionable next steps: scale, pause, or iterate
+## Deliver
 
-Be specific with numbers. Don't just say "good" - say "3.2x ROAS vs 2.1x benchmark."
+1. The verdict in one sentence, against the goal of the user. No goal known: say what the verdict would need.
+2. One short table: the campaign against the period before.
+3. What limits it and since when, what could contradict it.
+4. The changes, numbered, on the campaign or on a named ad set or ad. Ask which ones the user keeps.
 
-## Process Flow
-
-```dot
-digraph campaign_audit {
-    rankdir=TB;
-    "User selects campaign" -> "Fetch 30d performance";
-    "Fetch 30d performance" -> "Compare trends";
-    "Compare trends" -> "Get creative breakdown";
-    "Get creative breakdown" -> "Check lead quality";
-    "Check lead quality" -> "Map attribution journeys";
-    "Map attribution journeys" -> "Ask the Metrikia Assistant for an audit";
-    "Ask the Metrikia Assistant for an audit" -> "Compile audit report";
-}
-```
-
-## Red Flags
-- High CTR + low conversion -> landing page issue, not ad issue
-- High spend creative with no leads -> check tracking pixel, not the creative
-- ROAS good but CRM ROAS bad -> lead quality problem, tighten targeting
-- Single creative >60% of campaign spend -> concentration risk
-
-## Error Handling
-
-- If MCP server returns connection error -> Check that the plugin is still authorized in Metrikia Settings (sign in again if needed)
-- If "tenant not found" -> the session may have the wrong scope authorized. Need `mcp:read` minimum
-- If rate limited (429) -> Wait 60 seconds, reduce batch sizes
-- If empty results -> Verify date range and check if data sources are synced via `get_sync_status`
+Why the platform counts more sales than Metrikia credits: `get_campaign_performance` splits its count between after a click and without one, when the platform gives it.

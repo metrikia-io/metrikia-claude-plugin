@@ -1,77 +1,39 @@
 ---
 name: weekly-report
-description: Generate a comprehensive weekly ad performance report with MER, ROAS, top campaigns, anomalies, and Metrikia Assistant recommendations
+description: Use when the user asks how the week went, wants a weekly report or a recap for a Monday meeting or a client update, or says "weekly report", "bilan de la semaine", "how did we do this week".
 ---
 
-# Weekly Performance Report
+# Weekly report
 
-Generate a complete weekly ad performance report for the current tenant.
+The week on one screen: what is true, what moved, what to decide.
 
-## Process
+First read `${CLAUDE_PLUGIN_ROOT}/references/working-method.md`, once per session (from this file, `../../references/working-method.md`). Language: the one the user writes in, otherwise `${user_config.language}`.
 
-1. **Fetch current period metrics**
-   - Call `get_metrics` with last 7 days
-   - Call `compare_performance` with `comparisonType: "previous_period"` for week-over-week trends
+The week: the 7 days that end yesterday, or the one the user names, against the same number of days before.
 
-2. **Identify top and bottom performers**
-   - Call `get_creative_report` with `sortBy: "roas"` and `limit: 5` for top creatives
-   - Call `get_creative_report` with `sortBy: "spend"` and `limit: 10` for highest spenders
+## Read
 
-3. **Check for anomalies**
-   - Call `get_anomalies` to surface any detected issues
+1. `get_sync_status`: a source that is late is said before any figure.
+2. `get_metrics` for the week, then for the `previousPeriod` it returns: sales, spend and MER of both.
+3. `compare_performance` with `comparisonType: "previous_period"`: cost per sale, credited sales, and the leads the platforms count.
 
-4. **Get budget recommendations**
-   - Call `get_budget_advice` with `period: "7d"`
+## Ask the media buyer
 
-5. **Get the Metrikia Assistant's strategic take**
-   - Call `ask_assistant` with: "Based on this week's performance, what are the top 3 actions I should take next week?"
+A week ends on decisions about money, and `ask_media_buyer` looks for what moved before it proposes.
 
-## Output Format
+> Over my week from [first day] to [last day], what moved against the week before and since which day, what explains it, and what three decisions should I take for next week? My goal: [goal]. This week: [facts].
 
-Present the report in this structure:
+Follow-up with the `conversationId`: the point that stays unexplained, or the decision the user wants to change.
 
-### Performance Summary
-- Total Spend | Revenue | Profit
-- MER | ROAS | CRM ROAS
-- Week-over-week changes (with trend arrows)
+## Without an agent
 
-### Top 5 Creatives by ROAS
-Table: Name | Platform | Spend | Revenue | ROAS | CTR
+Add `get_ads_performance` with `level: "campaigns"` for who carries the spend and the sales, `get_anomalies` for the open ones, most severe first, and the decisions of the day from `get_budget_advice` when it answers (see the budget-optimizer skill). Say that the causes are not read here: nothing is explained, only shown.
 
-### Anomalies Detected
-List any anomalies with severity and recommended action
+## Deliver
 
-### Budget Recommendations
-Summarize Metrikia's reallocation suggestions
+1. The week in one sentence.
+2. One table, this week against the week before: sales, spend, MER, cost per sale. Add leads and cost per lead for an account that sells through leads.
+3. What moved and since when, what explains it, what could contradict it.
+4. The decisions, numbered. Ask which ones the user keeps.
 
-### Strategic Recommendations
-The Metrikia Assistant's top 3 actions for next week
-
-Keep the report concise and action-oriented. Use tables for data, bullet points for insights.
-
-## Process Flow
-
-```dot
-digraph weekly_report {
-    rankdir=TB;
-    "Fetch metrics (7d)" -> "Compare vs previous week";
-    "Compare vs previous week" -> "Get top 5 creatives (ROAS)";
-    "Get top 5 creatives (ROAS)" -> "Check anomalies";
-    "Check anomalies" -> "Get budget advice";
-    "Get budget advice" -> "Ask the Metrikia Assistant for a strategic take";
-    "Ask the Metrikia Assistant for a strategic take" -> "Compile report";
-}
-```
-
-## Red Flags
-- MER dropping >20% week-over-week -> investigate immediately
-- Spend anomaly with no revenue change -> possible tracking issue, check `get_sync_status`
-- All creatives declining -> likely audience fatigue, not individual creative issue
-- Revenue up but ROAS down -> scaling too aggressively, check CPL trends
-
-## Error Handling
-
-- If MCP server returns connection error -> Check that the plugin is still authorized in Metrikia Settings (sign in again if needed)
-- If "tenant not found" -> the session may have the wrong scope authorized. Need `mcp:read` minimum
-- If rate limited (429) -> Wait 60 seconds, reduce batch sizes
-- If empty results -> Verify date range and check if data sources are synced via `get_sync_status`
+Name a platform or a campaign only when it changes a decision.

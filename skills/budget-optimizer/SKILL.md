@@ -1,64 +1,36 @@
 ---
 name: budget-optimizer
-description: Optimize ad budget allocation across platforms and campaigns using MTA attribution data and Metrikia Assistant recommendations
+description: Use when the user asks where to put the ad money, which budgets to raise, lower or cut, how to split an amount between campaigns or platforms, or how to prepare the budgets of a sales event.
 ---
 
-# Budget Optimizer
+# Budget optimizer
 
-Optimize budget allocation across platforms and campaigns.
+A budget plan to decide line by line: each object, its value today, its next value, and what the whole plan changes.
 
-## Process
+First read `${CLAUDE_PLUGIN_ROOT}/references/working-method.md`, once per session (from this file, `../../references/working-method.md`). Language: the one the user writes in, otherwise `${user_config.language}`. Period: the one the user names, otherwise `${user_config.default_period}`.
 
-1. **Current allocation**
-   - Call `get_metrics` for current period
-   - Call `get_campaign_performance` for top 10 campaigns by spend
+## Read
 
-2. **Attribution-based analysis**
-   - Call `get_budget_advice` for MTA-enriched recommendations
-   - This uses multi-touch attribution to identify where budget actually drives conversions
+`get_ads_performance` with `level: "campaigns"`: spend, credited sales and current budget, and in `totals` whether the sales of the account reach the ads. With `budgetLevel: "adset"`, the amounts sit on the ad sets: read `level: "adsets"` once. With `sharedBudget: true`, one amount covers several campaigns: never add it up.
 
-3. **What-if scenarios**
-   - Call `ask_assistant`: "If I shift 20% of budget from [lowest ROAS platform] to [highest ROAS platform], what's the expected impact?"
+## Ask the media buyer
 
-4. **Anomaly check**
-   - Call `get_anomalies` to identify any spend anomalies before reallocating
+`ask_media_buyer` looks at what limits each campaign before it moves money, and it sizes the plan as a whole.
 
-## Output Format
+> What should I do with my budgets for [horizon], campaign by campaign, from what daily amount to what daily amount, and what is the net change of my daily spend? Read [period]. My goal: [goal]. Total I can spend: [amount, if given]. Do not touch: [constraints]. [facts: promotion, stock, launch]
 
-### Current Budget Allocation
-Platform breakdown: Spend | Revenue | ROAS | % of Budget
+Follow-up with the `conversationId` when the user keeps some lines only, adds a constraint or brings a fact: the agent sizes the plan again. Never subtract a line yourself.
 
-### MTA-Based Recommendations
-Metrikia's reallocation suggestions with expected impact
+## Without an agent
 
-### Risk Assessment
-Anomalies or concerns to address before changes
+`get_budget_advice`, with `language` set to the language of the answer. Use `analysis.budgetDecisions` as it stands: verdict, current and suggested budget of each campaign that spent yesterday, reason in plain words. These decisions are final, add no other move. Leave the `advice` text aside: it comments, it does not decide.
 
-### Action Plan
-Step-by-step reallocation instructions with specific amounts
+- `targetMissing: true`: nothing is decided. The target cost per purchase is missing in the brand sheet, and `ask_assistant` tells where to fill it.
+- `access_denied`, or no decision: show the spend and the sales by campaign (leads, appointments and deals for a lead account), and say what is missing to decide.
 
-## Process Flow
+## Deliver
 
-```dot
-digraph budget_optimizer {
-    rankdir=TB;
-    "Get current metrics" -> "Fetch top campaigns by spend";
-    "Fetch top campaigns by spend" -> "Get MTA budget advice";
-    "Get MTA budget advice" -> "Check anomalies";
-    "Check anomalies" -> "Ask the Metrikia Assistant about what-if scenarios";
-    "Ask the Metrikia Assistant about what-if scenarios" -> "Compile optimization plan";
-}
-```
-
-## Red Flags
-- Reallocating >30% of budget at once -> too risky, do 10-15% increments
-- Budget advice conflicts with anomaly data -> resolve anomalies first
-- Platform with no attribution data -> don't cut budget, fix tracking first
-- Highest ROAS campaign at max spend -> look for diminishing returns signal
-
-## Error Handling
-
-- If MCP server returns connection error -> Check that the plugin is still authorized in Metrikia Settings (sign in again if needed)
-- If "tenant not found" -> the session may have the wrong scope authorized. Need `mcp:read` minimum
-- If rate limited (429) -> Wait 60 seconds, reduce batch sizes
-- If empty results -> Verify date range and check if data sources are synced via `get_sync_status`
+1. The plan in one sentence: what it does to the daily spend.
+2. One table: object, budget today, next budget, the figure that justifies it, when to stop. Lines to raise, hold, lower and stop, in that order. A hold has its reason too.
+3. What could contradict the plan, in two sentences at most.
+4. Ask which lines the user keeps.

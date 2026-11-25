@@ -1,66 +1,40 @@
 ---
 name: attribution-deep-dive
-description: Deep analysis of multi-touch attribution - customer journeys, channel contribution, and conversion path optimization
+description: Use when the user asks which channels really bring the sales, which one opens or closes the customer journeys, whether a channel is credited too much or too little, or wants to compare attribution models or read a customer journey.
 ---
 
-# Attribution Deep Dive
+# Attribution deep dive
 
-Analyze multi-touch attribution to understand the true value of each marketing channel.
+Who brings the sales: what opens the journeys, what closes them, and what that changes.
 
-## Process
+First read `${CLAUDE_PLUGIN_ROOT}/references/working-method.md`, once per session (from this file, `../../references/working-method.md`). Language: the one the user writes in, otherwise `${user_config.language}`. Period: the one the user names, otherwise `${user_config.default_period}`.
 
-1. **Get recent conversions**
-   - Call `list_leads` with status "converted" to find recent conversions
-   - Call `list_deals` with status "won" for revenue data
+## Read
 
-2. **Journey analysis**
-   - For 5-10 converted leads, call `get_attribution_journey` to map full journeys
-   - Identify common patterns: first touch channels, assist channels, closing channels
+`get_metrics` once: MER and its trend, `attributedByChannel`, and `roas.channelComparisons`, what Metrikia credits to each platform next to what the platform reports. The amounts of `channelComparisons` are in cents: divide them by 100. Take the dates from `period`.
 
-3. **Channel contribution**
-   - Call `get_budget_advice` for attribution-enriched insights
-   - Compare last-touch vs multi-touch attribution to find undervalued channels
+## Ask the data scientist
 
-4. **Ask the Metrikia Assistant**
-   - Call `ask_assistant`: "Based on multi-touch attribution, which channels are undervalued by last-click and deserve more budget?"
+`ask_data_scientist` starts from the real sales, sees which source opens and closes the journeys, and knows how far each figure can be trusted.
 
-## Output Format
+> Over [period], what really brings my sales: which platforms and sources open the customer journeys, which ones close them, which ones are credited too much or too little, and does the marketing hold as a whole? What would you change, and what would prove you wrong? My goal: [goal]. [facts: launch, email, influencers, promotion]
 
-### Journey Patterns
-Common conversion paths (e.g., "Facebook Ad -> Google Search -> Direct -> Conversion")
+Follow-up with the `conversationId`: one channel, or a figure the user reads elsewhere, with where it is read and its dates.
 
-### Channel Contribution
-Table: Channel | First Touch % | Assist % | Last Touch % | True Value (MTA)
+## Without an agent
 
-### Undervalued Channels
-Channels that get little last-click credit but contribute heavily to assists
+Compare the models, and read one journey if the user wants an example. Say what is missing: the role of each source over all the journeys, and how far the figures can be trusted.
 
-### Optimization Opportunities
-Specific actions to improve the conversion path
+## On request
 
-## Process Flow
+- **Compare models**: `get_metrics` again with the same dates and `attributionModel: "first_touch"` for what opens, then `attributionModel: "last_touch"` for what closes. The default is `linear`. `markov_chain` and `shapley_value` need enough converted journeys: below it they read 0, which means unknown. Only the attributed figures follow the model, and no model says what would have happened without the ads.
+- **Read a journey**: `list_leads` with `status: "closed_won"`, then `get_attribution_journey` on the one the user wants. Each touchpoint carries its credit by model in `attributionCredits`. A journey holds clicks and visits: a mere view leaves no trace, and no touchpoint means no tracked visit.
 
-```dot
-digraph attribution_deep_dive {
-    rankdir=TB;
-    "Fetch converted leads" -> "Fetch won deals";
-    "Fetch won deals" -> "Map 5-10 journeys";
-    "Map 5-10 journeys" -> "Identify patterns";
-    "Identify patterns" -> "Get budget advice (MTA)";
-    "Get budget advice (MTA)" -> "Ask the Metrikia Assistant about undervalued channels";
-    "Ask the Metrikia Assistant about undervalued channels" -> "Compile attribution report";
-}
-```
+## Deliver
 
-## Red Flags
-- Channel shows 0% last-touch but >15% assist -> severely undervalued, investigate
-- Average journey >7 touchpoints -> long consideration cycle, adjust attribution window
-- Single-touch conversions dominating -> either tracking gap or very direct funnel
-- Large gap between platform-reported and MTA conversions -> deduplication needed
+1. What brings the sales, in one sentence, with what the whole returns.
+2. One table by channel: what it opens, what it closes, what Metrikia credits, what the platform reports. Leave a column out rather than fill it with a guess.
+3. Why the counts differ, and what could contradict the reading.
+4. The decisions, numbered. Ask which ones the user keeps.
 
-## Error Handling
-
-- If MCP server returns connection error -> Check that the plugin is still authorized in Metrikia Settings (sign in again if needed)
-- If "tenant not found" -> the session may have the wrong scope authorized. Need `mcp:read` minimum
-- If rate limited (429) -> Wait 60 seconds, reduce batch sizes
-- If empty results -> Verify date range and check if data sources are synced via `get_sync_status`
+Read the channels together, never one alone. A platform counts its own way: say how, do not call it wrong.

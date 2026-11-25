@@ -1,69 +1,40 @@
 ---
 name: lead-pipeline
-description: Analyze the CRM lead pipeline - conversion rates, source attribution, deal velocity, and lead quality assessment
+description: Use when the user asks about leads, appointments, deals or the sales pipeline, which sources bring leads that sign, why leads do not turn into sales, or who to follow up first.
 ---
 
-# Lead Pipeline Analysis
+# Lead pipeline
 
-Analyze the current CRM pipeline health.
+From the lead to the signed sale: where people stop, which sources bring the ones who sign, what to do first.
 
-## Process
+First read `${CLAUDE_PLUGIN_ROOT}/references/working-method.md`, once per session (from this file, `../../references/working-method.md`). Language: the one the user writes in, otherwise `${user_config.language}`. Period: the one the user names, otherwise `${user_config.default_period}`.
 
-1. **Pipeline overview**
-   - Call `list_leads` with status filters: qualified, contacted, converted
-   - Call `list_deals` to see open deals and won deals
+## Ask the data scientist
 
-2. **Source analysis**
-   - Cross-reference leads by source to identify highest-quality acquisition channels
+`ask_data_scientist` sets the leads the platforms count against the CRM, and it answers the sales roles that cannot open the ads.
 
-3. **Attribution deep-dive**
-   - For recently converted leads, call `get_attribution_journey` to understand which campaigns drove conversions
+> Over [period], from the lead to the signed sale, which sources and campaigns bring the leads that become appointments and sales, where do they stop and since when, and what are the three things to do first? Compare the leads the platforms count with the CRM. My goal: [goal]. [facts: call-back, team, offer]
 
-4. **Metrics context**
-   - Call `get_metrics` for the period to correlate ad spend with lead generation
+Follow-up with the `conversationId`: one source, one step, or a cause the user brings. A change on the ads is a question for the media buyer, only if the user asks.
 
-5. **Metrikia Assistant insights**
-   - Call `ask_assistant`: "Analyze my lead pipeline: which sources have the best conversion rates and what's the bottleneck?"
+With an agent, read the CRM only for what the user asks to see.
 
-## Output Format
+## Without an agent
 
-### Pipeline Health
-- Total leads by status (funnel visualization)
-- Conversion rate: Lead -> Qualified -> Converted
-- Average deal value
+Read `funnel.md`, in the folder of this skill, before any call: it holds the statuses that exist and how to count. Then:
 
-### Source Performance
-Table: Source | Leads | Qualified | Converted | Conversion Rate | Avg Deal Value
+1. Count the leads and the deals at each status.
+2. Read the period the user asks for, page by page.
+3. `get_ads_performance` with `level: "campaigns"`: for each campaign, the leads the platform counts next to the `crm` block (leads, cost per lead, appointments, deals).
+4. Say what is missing: the time between two steps, the cause of a weak one.
 
-### Top Conversion Journeys
-Show 3-5 example attribution journeys for converted leads
+The same file serves "who do I call first" and "how did this lead come".
 
-### Recommendations
-Where to invest more, where to cut, bottleneck fixes
+## Deliver
 
-## Process Flow
+1. Where the pipeline loses people, in one sentence.
+2. One table: the steps with their counts, or the sources with their leads, appointments and sales. Say the period, or "today" for the state of the day.
+3. What explains the weak step, and what could contradict it: the ads, the call-back, the offer or the tracking.
+4. The actions, numbered, with who does each one. Ask which ones the user keeps.
 
-```dot
-digraph lead_pipeline {
-    rankdir=TB;
-    "Fetch leads by status" -> "Fetch deals";
-    "Fetch deals" -> "Cross-reference by source";
-    "Cross-reference by source" -> "Map attribution for converted";
-    "Map attribution for converted" -> "Get period metrics";
-    "Get period metrics" -> "Ask the Metrikia Assistant for an analysis";
-    "Ask the Metrikia Assistant for an analysis" -> "Compile pipeline report";
-}
-```
-
-## Red Flags
-- High lead volume + low qualification rate -> targeting too broad
-- Qualified leads not converting to deals -> sales process issue, not marketing
-- One source dominating pipeline -> diversification risk
-- Long time in "contacted" status -> sales capacity bottleneck
-
-## Error Handling
-
-- If MCP server returns connection error -> Check that the plugin is still authorized in Metrikia Settings (sign in again if needed)
-- If "tenant not found" -> the session may have the wrong scope authorized. Need `mcp:read` minimum
-- If rate limited (429) -> Wait 60 seconds, reduce batch sizes
-- If empty results -> Verify date range and check if data sources are synced via `get_sync_status`
+A lead counts for what it becomes. A cost per lead that a platform gives is its own count. Names of leads appear when the user asks for the list, not before, and nothing changes in the CRM without a yes on each lead.

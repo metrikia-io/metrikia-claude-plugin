@@ -1,65 +1,35 @@
 ---
 name: creative-analysis
-description: Analyze creative performance across all platforms - identify winners, losers, fatigue signals, and scaling opportunities
+description: Use when the user asks which ads or creatives sell and why, whether one ad beats another or is wearing out, what to test or produce next, or wants hooks, variations, scripts or a brief for the team that makes the ads.
 ---
 
-# Creative Analysis
+# Creative analysis
 
-Comprehensive creative performance analysis.
+What sells among the ads and why, what is tired, and what to make next, written out.
 
-## Process
+First read `${CLAUDE_PLUGIN_ROOT}/references/working-method.md`, once per session (from this file, `../../references/working-method.md`). Language: the one the user writes in, otherwise `${user_config.language}`. Period: the one the user names, otherwise `${user_config.default_period}`.
 
-1. **Top performers**
-   - Call `get_creative_report` with `sortBy: "roas"` and `limit: 50`
+## Read
 
-2. **Spend efficiency**
-   - Call `get_creative_report` with `sortBy: "spend"` to find high-spend creatives
-   - Cross-reference: high spend + low ROAS = waste
+`get_ads_performance` with `level: "ads"`, narrowed by `campaignId` or `adSetId` when the user names one: spend, credited sales and their cost (the `crm` block for a lead account), and where the platform gives them, frequency and clicks to the site. Rows come by spend: the ads that count are at the top. Rank on these rows.
 
-3. **Period comparison**
-   - Call `compare_performance` to identify trends
-   - Creatives with declining CTR may signal fatigue
+## Ask the creative strategist
 
-4. **Ask the Metrikia Assistant**
-   - Call `ask_assistant`: "Which creatives show signs of fatigue and which have room to scale?"
+`ask_creative_strategist` starts from what people are shown and ties it to the real sales. It reads the figures, formats and texts of the ads, and never watches a video.
 
-## Output Format
+> Over [period], which of my ads really sell and why, which are wearing out, and what are the next [number] ads to make, with the hook, the script and the text written out? Product and customer: [words of the user]. Offer to show, if any: [offer and end date]. On screen in "[ad name]": [description, if given]. Constraints: [claims to avoid, people available to film]
 
-### Creative Performance Tiers
-- **Scale** (high ROAS, room for more spend): List with metrics
-- **Maintain** (solid ROAS, stable): List
-- **Watch** (declining metrics): List with warning signals
-- **Kill** (low ROAS, high spend): List with savings potential
+Before a follow-up, ask the user for what no tool holds: what happens first in the ads with the most spend, and a few reviews or comments in the customers' own words. Send them with the `conversationId`. The budget of an ad is a question for the media buyer, only if the user asks.
 
-### Platform Comparison
-Which platform's creatives perform best and why
+## Without an agent
 
-### Scaling Recommendations
-Specific creatives to increase budget on, with suggested amounts
+Show the ads with the most spend and the most credited sales, side by side, what each figure shows and which ones are paused. Stop there: no winner is named, no wear is declared. An idea of yours is presented as an idea, not as a reading of the account.
 
-## Process Flow
+## Deliver
 
-```dot
-digraph creative_analysis {
-    rankdir=TB;
-    "Fetch top 50 creatives by ROAS" -> "Fetch by spend";
-    "Fetch by spend" -> "Cross-reference efficiency";
-    "Cross-reference efficiency" -> "Compare periods for trends";
-    "Compare periods for trends" -> "Ask the Metrikia Assistant about fatigue";
-    "Ask the Metrikia Assistant about fatigue" -> "Classify into tiers";
-    "Classify into tiers" -> "Compile creative report";
-}
-```
+1. What to understand about the ads, in one sentence.
+2. The ads that count, by their real name: what each sells, the reason given, what would confirm it.
+3. The next ads, numbered: what is new in each, what is taken from the ads that sell, how its result will be judged. Hook and text ready to copy.
+4. Ask which ones go to production. A full script or brief comes on request.
 
-## Red Flags
-- CTR declining over 3+ weeks -> creative fatigue confirmed
-- High impression count + stable CTR but declining conversions -> audience saturation
-- New creative outperforming by >3x -> test at larger scale before declaring winner
-- All "Kill" tier creatives from same platform -> platform issue, not creative issue
-
-## Error Handling
-
-- If MCP server returns connection error -> Check that the plugin is still authorized in Metrikia Settings (sign in again if needed)
-- If "tenant not found" -> the session may have the wrong scope authorized. Need `mcp:read` minimum
-- If rate limited (429) -> Wait 60 seconds, reduce batch sizes
-- If empty results -> Verify date range and check if data sources are synced via `get_sync_status`
+A new ad proves nothing before it sells. Never copy another brand, never invent a review, an offer, an urgency or a scene.
