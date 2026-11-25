@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "metrikia": {
+      "type": "http",
+      "url": "https://mcp.metrikia.io/api/v1/mcp",
+      "timeout": 180000
+    }
+  }
+}

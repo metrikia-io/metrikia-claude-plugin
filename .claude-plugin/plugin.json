@@ -10,28 +10,5 @@
   "repository": "https://github.com/metrikia-io/metrikia-claude-plugin",
   "license": "MIT",
   "keywords": ["ads", "media-buying", "roi", "attribution", "mcp", "metrikia", "performance-marketing"],
-  "skills": "./skills/",
-  "mcpServers": {
-    "metrikia": {
-      "type": "http",
-      "url": "https://mcp.metrikia.io/api/v1/mcp",
-      "timeout": 180000
-    }
-  },
-  "userConfig": {
-    "default_period": {
-      "type": "string",
-      "title": "Default analysis period",
-      "description": "Period a skill reads when you name none: 7d, 30d, or 90d (default: 30d)",
-      "default": "30d",
-      "sensitive": false
-    },
-    "language": {
-      "type": "string",
-      "title": "Report language",
-      "description": "Language of the answers when your message does not tell: en or fr (default: en)",
-      "default": "en",
-      "sensitive": false
-    }
-  }
+  "skills": "./skills/"
 }
