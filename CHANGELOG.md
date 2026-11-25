@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.2.0] - 2026-11-25
+
+### Changed
+- `ask_assistant` replaces `ask_diana` in the skills, agents, session context and docs, to follow version 1.3.0 of the Metrikia MCP server. The server no longer lists the former name but still accepts it, with the same answer and the same limit.
+- The texts speak of roles only: the AI assistant is the Metrikia Assistant. The steps of each skill and their order do not change.
+
 ## [2.1.0] - 2026-07-27
 
 ### Changed

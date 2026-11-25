@@ -24,7 +24,7 @@ Detailed usage guide for all 6 Metrikia skills. Each skill is a structured orche
 | 4 | `get_creative_report(sortBy="spend", limit=10)` | Top 10 creatives by spend |
 | 5 | `get_anomalies()` | Active anomalies to flag |
 | 6 | `get_budget_advice(period="7d")` | MTA-based budget recommendations |
-| 7 | `ask_diana("Based on this week's performance...")` | Strategic top 3 actions |
+| 7 | `ask_assistant("Based on this week's performance...")` | Strategic top 3 actions |
 
 ### How to Interpret the Output
 
@@ -36,9 +36,9 @@ The report is structured in five sections:
 
 3. **Anomalies Detected** -- High-severity anomalies require immediate action. A spend spike with no revenue change often indicates a tracking issue rather than a performance issue. Check `get_sync_status` first.
 
-4. **Budget Recommendations** -- Diana's MTA-enriched reallocation suggestions. These account for multi-touch attribution, not just last-click. Undervalued channels (high assist credit, low budget) are the biggest optimization opportunities.
+4. **Budget Recommendations** -- Metrikia's MTA-enriched reallocation suggestions. These account for multi-touch attribution, not just last-click. Undervalued channels (high assist credit, low budget) are the biggest optimization opportunities.
 
-5. **Strategic Recommendations** -- Diana's top 3 actions for the coming week. These factor in the tenant's business context, historical patterns, and current performance trajectory.
+5. **Strategic Recommendations** -- The Metrikia Assistant's top 3 actions for the coming week. These factor in the tenant's business context, historical patterns, and current performance trajectory.
 
 ### Real-World Example Scenario
 
@@ -67,7 +67,7 @@ Budget Recommendations
   Move 150 EUR/week from Retargeting General to Prospect Froid Q1
   Expected: +8 leads/week based on Shapley attribution credits
 
-Diana's Top 3 Actions
+The Metrikia Assistant's Top 3 Actions
   1. Scale Video Temoignage v2 by 30% -- room to grow at current ROAS
   2. Pause Retargeting General until CPA anomaly resolved
   3. Test new Google Search campaign -- organic search data shows demand
@@ -107,7 +107,7 @@ Diana's Top 3 Actions
 | 3 | `get_creative_report(campaignId=...)` | All creatives in this campaign |
 | 4 | `list_leads(status filters)` | Leads attributed to this campaign |
 | 5 | `get_attribution_journey(leadId=...)` | Full journey for key leads |
-| 6 | `ask_diana("Audit campaign [name]...")` | Diana's optimization recommendations |
+| 6 | `ask_assistant("Audit campaign [name]...")` | The Metrikia Assistant's optimization recommendations |
 
 ### How to Interpret the Output
 
@@ -186,7 +186,7 @@ Recommendations
 | 5 | `list_deals(status="won")` | Won deals |
 | 6 | `get_attribution_journey(leadId=...)` | Journeys for converted leads |
 | 7 | `get_metrics()` | Period metrics for spend/revenue correlation |
-| 8 | `ask_diana("Analyze my lead pipeline...")` | Pipeline insights |
+| 8 | `ask_assistant("Analyze my lead pipeline...")` | Pipeline insights |
 
 ### How to Interpret the Output
 
@@ -262,7 +262,7 @@ Recommendations
 | 2 | `get_campaign_performance()` | Top 10 campaigns by spend |
 | 3 | `get_budget_advice(period="30d")` | MTA-enriched reallocation recommendations |
 | 4 | `get_anomalies()` | Spend anomalies to address first |
-| 5 | `ask_diana("If I shift 20% of budget...")` | What-if scenario analysis |
+| 5 | `ask_assistant("If I shift 20% of budget...")` | What-if scenario analysis |
 
 ### How to Interpret the Output
 
@@ -339,7 +339,7 @@ Action Plan
 | 1 | `get_creative_report(sortBy="roas", limit=50)` | All creatives ranked by efficiency |
 | 2 | `get_creative_report(sortBy="spend", limit=50)` | Same creatives ranked by spend |
 | 3 | `compare_performance()` | Period comparison for trend detection |
-| 4 | `ask_diana("Which creatives show fatigue...")` | AI-powered fatigue and scaling analysis |
+| 4 | `ask_assistant("Which creatives show fatigue...")` | AI-powered fatigue and scaling analysis |
 
 ### How to Interpret the Output
 
@@ -420,7 +420,7 @@ Scaling Plan
 | 2 | `list_deals(status="won")` | Won deals with revenue data |
 | 3 | `get_attribution_journey(leadId=...)` | Full journey for 5-10 leads |
 | 4 | `get_budget_advice()` | MTA-enriched insights |
-| 5 | `ask_diana("Based on MTA, which channels are undervalued...")` | Strategic channel assessment |
+| 5 | `ask_assistant("Based on MTA, which channels are undervalued...")` | Strategic channel assessment |
 
 ### How to Interpret the Output
 

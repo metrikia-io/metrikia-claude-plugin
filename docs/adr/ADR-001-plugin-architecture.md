@@ -18,7 +18,7 @@ Two things described below have since changed; the original decision and its rea
 
 ## Context
 
-Metrikia has an MCP server (ADR-085 in the main project) that exposes 17 tools for ad performance, CRM, attribution, and Diana AI. This server is already accessible to any MCP-compatible client via direct configuration (adding the server URL and API key to the client's config file).
+Metrikia has an MCP server that exposes 17 tools for ad performance, CRM, attribution, and the Metrikia Assistant. This server is already accessible to any MCP-compatible client via direct configuration (adding the server URL and API key to the client's config file).
 
 We need to make the Metrikia MCP integration accessible to AI clients (Claude Code, Cursor) in a way that maximizes usability for media buyers and performance managers who are not developers. The raw MCP tools are powerful but require the user to know which tools exist, what parameters they accept, and how to chain them together for meaningful analysis.
 

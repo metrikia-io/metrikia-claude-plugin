@@ -1,6 +1,6 @@
 ---
 name: budget-optimizer
-description: Optimize ad budget allocation across platforms and campaigns using MTA attribution data and Diana AI recommendations
+description: Optimize ad budget allocation across platforms and campaigns using MTA attribution data and Metrikia Assistant recommendations
 ---
 
 # Budget Optimizer
@@ -18,7 +18,7 @@ Optimize budget allocation across platforms and campaigns.
    - This uses multi-touch attribution to identify where budget actually drives conversions
 
 3. **What-if scenarios**
-   - Call `ask_diana`: "If I shift 20% of budget from [lowest ROAS platform] to [highest ROAS platform], what's the expected impact?"
+   - Call `ask_assistant`: "If I shift 20% of budget from [lowest ROAS platform] to [highest ROAS platform], what's the expected impact?"
 
 4. **Anomaly check**
    - Call `get_anomalies` to identify any spend anomalies before reallocating
@@ -29,7 +29,7 @@ Optimize budget allocation across platforms and campaigns.
 Platform breakdown: Spend | Revenue | ROAS | % of Budget
 
 ### MTA-Based Recommendations
-Diana's reallocation suggestions with expected impact
+Metrikia's reallocation suggestions with expected impact
 
 ### Risk Assessment
 Anomalies or concerns to address before changes
@@ -45,8 +45,8 @@ digraph budget_optimizer {
     "Get current metrics" -> "Fetch top campaigns by spend";
     "Fetch top campaigns by spend" -> "Get MTA budget advice";
     "Get MTA budget advice" -> "Check anomalies";
-    "Check anomalies" -> "Ask Diana what-if scenarios";
-    "Ask Diana what-if scenarios" -> "Compile optimization plan";
+    "Check anomalies" -> "Ask the Metrikia Assistant about what-if scenarios";
+    "Ask the Metrikia Assistant about what-if scenarios" -> "Compile optimization plan";
 }
 ```
 

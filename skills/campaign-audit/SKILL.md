@@ -24,8 +24,8 @@ Ask the user which campaign to audit. Use `list_campaigns` to show available cam
    - Call `list_leads` to find leads attributed to this campaign
    - For key leads, call `get_attribution_journey` to see the full path
 
-4. **Ask Diana**
-   - Call `ask_diana`: "Audit campaign [name]: what's working, what's not, and what should I change?"
+4. **Ask the Metrikia Assistant**
+   - Call `ask_assistant`: "Audit campaign [name]: what's working, what's not, and what should I change?"
 
 ## Output Format
 
@@ -53,8 +53,8 @@ digraph campaign_audit {
     "Compare trends" -> "Get creative breakdown";
     "Get creative breakdown" -> "Check lead quality";
     "Check lead quality" -> "Map attribution journeys";
-    "Map attribution journeys" -> "Ask Diana for audit";
-    "Ask Diana for audit" -> "Compile audit report";
+    "Map attribution journeys" -> "Ask the Metrikia Assistant for an audit";
+    "Ask the Metrikia Assistant for an audit" -> "Compile audit report";
 }
 ```
 

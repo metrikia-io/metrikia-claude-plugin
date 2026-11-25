@@ -1,6 +1,6 @@
 ---
 name: weekly-report
-description: Generate a comprehensive weekly ad performance report with MER, ROAS, top campaigns, anomalies, and Diana AI recommendations
+description: Generate a comprehensive weekly ad performance report with MER, ROAS, top campaigns, anomalies, and Metrikia Assistant recommendations
 ---
 
 # Weekly Performance Report
@@ -23,8 +23,8 @@ Generate a complete weekly ad performance report for the current tenant.
 4. **Get budget recommendations**
    - Call `get_budget_advice` with `period: "7d"`
 
-5. **Get Diana's strategic take**
-   - Call `ask_diana` with: "Based on this week's performance, what are the top 3 actions I should take next week?"
+5. **Get the Metrikia Assistant's strategic take**
+   - Call `ask_assistant` with: "Based on this week's performance, what are the top 3 actions I should take next week?"
 
 ## Output Format
 
@@ -42,10 +42,10 @@ Table: Name | Platform | Spend | Revenue | ROAS | CTR
 List any anomalies with severity and recommended action
 
 ### Budget Recommendations
-Summarize Diana's reallocation suggestions
+Summarize Metrikia's reallocation suggestions
 
 ### Strategic Recommendations
-Diana's top 3 actions for next week
+The Metrikia Assistant's top 3 actions for next week
 
 Keep the report concise and action-oriented. Use tables for data, bullet points for insights.
 
@@ -58,8 +58,8 @@ digraph weekly_report {
     "Compare vs previous week" -> "Get top 5 creatives (ROAS)";
     "Get top 5 creatives (ROAS)" -> "Check anomalies";
     "Check anomalies" -> "Get budget advice";
-    "Get budget advice" -> "Ask Diana for strategic take";
-    "Ask Diana for strategic take" -> "Compile report";
+    "Get budget advice" -> "Ask the Metrikia Assistant for a strategic take";
+    "Ask the Metrikia Assistant for a strategic take" -> "Compile report";
 }
 ```
 

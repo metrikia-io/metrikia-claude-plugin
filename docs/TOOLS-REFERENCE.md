@@ -749,14 +749,14 @@ If lastSyncAt is >4 hours old, warn the user and suggest trigger_sync
 
 ---
 
-## 5. Diana AI (1 tool)
+## 5. Metrikia Assistant (1 tool)
 
-### ask_diana
+### ask_assistant
 
-Ask Diana, Metrikia's AI assistant, strategic questions about your data. Diana has access to the tenant's vectorized knowledge base, performance history, and business objectives.
+Ask the Metrikia Assistant, the AI assistant of Metrikia, strategic questions about your data. A question about your figures is answered from your account data by the agent of the Metrikia team the question calls for, when the account can use one. Other questions, such as how the platform works, are answered from the help content, which reads no figure.
 
 **Scope:** `mcp:read`
-**Rate limit:** 10/5min (diana)
+**Rate limit:** 10/5min (assistant)
 **Circuit breaker:** 5 failures -> open (30s) -> half-open (1 probe)
 
 | Parameter | Type | Required | Default | Description |
@@ -774,27 +774,27 @@ Ask Diana, Metrikia's AI assistant, strategic questions about your data. Diana h
 **Return fields:**
 | Field | Type | Description |
 |-------|------|-------------|
-| `answer` | string | Diana's response |
+| `answer` | string | The Metrikia Assistant's response |
 | `conversationId` | string or null | Conversation UUID (for context continuity) |
 
 **When circuit breaker is open:**
 ```json
 {
-  "answer": "Diana is temporarily unavailable. Please try again in a moment.",
+  "answer": "Metrikia Assistant is temporarily unavailable. Please try again in a moment.",
   "conversationId": null
 }
 ```
 
 **Notes:**
-- Diana calls Claude Haiku internally (AI-calling-AI). The circuit breaker prevents runaway loops.
-- The `source: "mcp"` tag is added to the DTO so Diana can adapt her responses for AI client context.
-- Use Diana for strategic questions that require business context. For raw data, use the other tools directly.
+- An answer takes longer than a data read. Ask one strategic question instead of many tactical ones.
+- Attribute the answer to the Metrikia Assistant.
+- Use the Metrikia Assistant for strategic questions that require business context. For raw data, use the other tools directly.
 
 **Skill usage example (weekly-report):**
 ```
 After gathering all data with other tools:
-Call ask_diana("Based on this week's performance data, what are the top 3 actions I should take next week?")
-Present Diana's response in the Strategic Recommendations section
+Call ask_assistant("Based on this week's performance data, what are the top 3 actions I should take next week?")
+Present the Metrikia Assistant's response in the Strategic Recommendations section
 ```
 
 ---
@@ -1006,7 +1006,7 @@ Trigger an asynchronous data source sync. Dispatches a message to the sync worke
 | Category | Tools | Limit | Window |
 |----------|-------|-------|--------|
 | Read | list_campaigns, get_campaign_performance, get_creative_report, compare_performance, list_leads, get_lead, list_deals, get_attribution_journey, get_budget_advice, get_anomalies, get_metrics, get_sync_status | 60 requests | 1 minute |
-| Diana | ask_diana | 10 requests | 5 minutes |
+| Metrikia Assistant | ask_assistant | 10 requests | 5 minutes |
 | Write | create_lead, transition_lead, create_deal | 30 requests | 1 minute |
 | Sync | trigger_sync | 5 requests | 1 hour |
 

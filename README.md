@@ -1,10 +1,10 @@
 # Metrikia Plugin for Claude Code
 
-AI-powered ad tracking and ROI analysis directly in Claude Code. Connect your AI assistant to Metrikia's MCP server and access campaigns, leads, attribution, and Diana AI insights.
+AI-powered ad tracking and ROI analysis directly in Claude Code. Connect your AI assistant to Metrikia's MCP server and access campaigns, leads, attribution, and Metrikia Assistant insights.
 
 ## What is Metrikia?
 
-Metrikia is a SaaS platform that correlates ad investments (Meta, Google, TikTok) with CRM sales data to calculate real ROI. It provides multi-touch attribution (9 models including Shapley and Markov), lead pipeline tracking, creative performance analysis, and Diana AI for strategic recommendations. Built for Media Buyers, Creative Strategists, Performance Managers, and Ad Agencies.
+Metrikia is a SaaS platform that correlates ad investments (Meta, Google, TikTok) with CRM sales data to calculate real ROI. It provides multi-touch attribution (9 models including Shapley and Markov), lead pipeline tracking, creative performance analysis, and the Metrikia Assistant for strategic recommendations. Built for Media Buyers, Creative Strategists, Performance Managers, and Ad Agencies.
 
 ## Installation
 
@@ -69,7 +69,7 @@ If the server is unreachable, you get a clear warning with instructions, no sile
 
 | Skill | Description |
 |-------|-------------|
-| `/metrikia:weekly-report` | Generate a weekly ad performance report with MER, ROAS, anomalies, and Diana recommendations |
+| `/metrikia:weekly-report` | Generate a weekly ad performance report with MER, ROAS, anomalies, and Metrikia Assistant recommendations |
 | `/metrikia:campaign-audit` | Deep audit of a specific campaign with creative breakdown and attribution insights |
 | `/metrikia:lead-pipeline` | Analyze CRM pipeline health, conversion rates, and source attribution |
 | `/metrikia:budget-optimizer` | Optimize budget allocation using MTA attribution data |
@@ -93,7 +93,7 @@ If the server is unreachable, you get a clear warning with instructions, no sile
 
 **Metrics:** `get_metrics`, `get_anomalies`, `get_sync_status`
 
-**Diana AI:** `ask_diana`
+**Metrikia Assistant:** `ask_assistant`
 
 **Write:** `create_lead`, `transition_lead`, `create_deal`, `trigger_sync`
 
@@ -119,7 +119,7 @@ Generates a structured report in one shot:
 - Aggregated metrics (MER, ROAS, CPA, CPL) with week-over-week trends
 - Top/bottom campaigns ranked by ROAS
 - Anomaly detection (spend spikes, CTR drops, conversion rate shifts)
-- Diana AI strategic recommendations
+- Strategic recommendations from the Metrikia Assistant
 - Concrete next actions with priority
 
 **What Claude Code alone can't do:** Access your live campaign data, calculate real MER across platforms, or detect anomalies based on your historical performance.
@@ -145,7 +145,7 @@ Claude chains multiple tools:
 2. `get_attribution_journey` - pulls multi-touch attribution (Shapley model)
 3. `compare_performance` - benchmarks against last-click model
 4. `get_budget_advice` - gets data-driven reallocation recommendations
-5. `ask_diana` - validates the strategy with Diana AI
+5. `ask_assistant` - validates the strategy with the Metrikia Assistant
 
 Result: a complete analysis showing which channels get too much/too little budget based on their true contribution, with specific reallocation percentages.
 
@@ -173,7 +173,7 @@ Claude orchestrates the full toolkit:
 3. `get_creative_report` - creative fatigue signals emerging
 4. `get_budget_advice` - reallocation opportunities from fresh data
 5. `list_leads` - new leads from weekend, quality assessment
-6. `ask_diana` - strategic priorities for the week
+6. `ask_assistant` - strategic priorities for the week
 
 Result: an actionable brief with 3 sections - **Urgent** (fix now), **Optimize** (improve this week), **Test** (new experiments to launch).
 

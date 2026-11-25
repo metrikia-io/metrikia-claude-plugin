@@ -143,7 +143,7 @@ Two scopes exist:
 
 ### Transport
 
-HTTP transport over TLS. The MCP server runs at `https://mcp.metrikia.io/api/v1/mcp`, scaled independently from the main API. Streamable HTTP (SSE) is planned for `ask_diana` in v1.2.
+HTTP transport over TLS. The MCP server runs at `https://mcp.metrikia.io/api/v1/mcp`. Streamable HTTP (SSE) is planned for `ask_assistant`.
 
 ## Skill Execution Model
 
@@ -198,7 +198,7 @@ Step 2: compare_performance(comparisonType="previous_period") --> JSON
 Step 3: get_creative_report(sortBy="roas", limit=5) --> JSON
 Step 4: get_anomalies() --> JSON
 Step 5: get_budget_advice(period="7d") --> JSON
-Step 6: ask_diana("Based on this week's performance...") --> JSON
+Step 6: ask_assistant("Based on this week's performance...") --> JSON
     |
     v
 Claude synthesizes all responses into the prescribed Output Format
@@ -274,7 +274,7 @@ The empty `matcher` means the hook fires on every session start, regardless of p
 
 | Scope | Tools | Count |
 |-------|-------|-------|
-| `mcp:read` | list_leads, get_lead, list_campaigns, get_campaign_performance, get_creative_report, get_metrics, compare_performance, list_deals, get_attribution_journey, get_anomalies, get_budget_advice, get_sync_status, ask_diana | 13 |
+| `mcp:read` | list_leads, get_lead, list_campaigns, get_campaign_performance, get_creative_report, get_metrics, compare_performance, list_deals, get_attribution_journey, get_anomalies, get_budget_advice, get_sync_status, ask_assistant | 13 |
 | `mcp:write` | create_lead, transition_lead, create_deal, trigger_sync | 4 |
 
 ### PII Masking
@@ -290,15 +290,15 @@ The MCP server enforces a strict PII invariant at the tool level. Every tool use
 | Category | Limit | Window |
 |----------|-------|--------|
 | Read tools | 60 requests | 1 minute |
-| Diana AI | 10 requests | 5 minutes |
+| Metrikia Assistant | 10 requests | 5 minutes |
 | Write tools | 30 requests | 1 minute |
 | Sync trigger | 5 requests | 1 hour |
 
 Implemented via a sliding window rate limiter. Returns HTTP 429 with `Retry-After` header when exceeded.
 
-### Circuit Breaker (Diana AI)
+### Circuit Breaker (Metrikia Assistant)
 
-`ask_diana` calls an AI model internally (AI-calling-AI). A circuit breaker prevents runaway loops:
+A circuit breaker protects `ask_assistant`:
 
 ```
 Closed (normal) --5 failures--> Open (blocked, 30s cooldown)

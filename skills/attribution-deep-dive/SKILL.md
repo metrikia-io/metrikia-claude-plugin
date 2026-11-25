@@ -21,8 +21,8 @@ Analyze multi-touch attribution to understand the true value of each marketing c
    - Call `get_budget_advice` for attribution-enriched insights
    - Compare last-touch vs multi-touch attribution to find undervalued channels
 
-4. **Ask Diana**
-   - Call `ask_diana`: "Based on multi-touch attribution, which channels are undervalued by last-click and deserve more budget?"
+4. **Ask the Metrikia Assistant**
+   - Call `ask_assistant`: "Based on multi-touch attribution, which channels are undervalued by last-click and deserve more budget?"
 
 ## Output Format
 
@@ -47,8 +47,8 @@ digraph attribution_deep_dive {
     "Fetch won deals" -> "Map 5-10 journeys";
     "Map 5-10 journeys" -> "Identify patterns";
     "Identify patterns" -> "Get budget advice (MTA)";
-    "Get budget advice (MTA)" -> "Ask Diana undervalued channels";
-    "Ask Diana undervalued channels" -> "Compile attribution report";
+    "Get budget advice (MTA)" -> "Ask the Metrikia Assistant about undervalued channels";
+    "Ask the Metrikia Assistant about undervalued channels" -> "Compile attribution report";
 }
 ```
 

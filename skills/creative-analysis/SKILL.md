@@ -20,8 +20,8 @@ Comprehensive creative performance analysis.
    - Call `compare_performance` to identify trends
    - Creatives with declining CTR may signal fatigue
 
-4. **Ask Diana**
-   - Call `ask_diana`: "Which creatives show signs of fatigue and which have room to scale?"
+4. **Ask the Metrikia Assistant**
+   - Call `ask_assistant`: "Which creatives show signs of fatigue and which have room to scale?"
 
 ## Output Format
 
@@ -45,8 +45,8 @@ digraph creative_analysis {
     "Fetch top 50 creatives by ROAS" -> "Fetch by spend";
     "Fetch by spend" -> "Cross-reference efficiency";
     "Cross-reference efficiency" -> "Compare periods for trends";
-    "Compare periods for trends" -> "Ask Diana about fatigue";
-    "Ask Diana about fatigue" -> "Classify into tiers";
+    "Compare periods for trends" -> "Ask the Metrikia Assistant about fatigue";
+    "Ask the Metrikia Assistant about fatigue" -> "Classify into tiers";
     "Classify into tiers" -> "Compile creative report";
 }
 ```

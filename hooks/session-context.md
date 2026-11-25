@@ -30,7 +30,7 @@ You have access to the Metrikia MCP server for ad tracking, ROI analysis, and CR
 
 **Metrics:** `get_metrics`, `get_anomalies`, `get_sync_status`
 
-**Diana AI:** `ask_diana`
+**Metrikia Assistant:** `ask_assistant`
 
 **Write:** `create_lead`, `transition_lead`, `create_deal`, `trigger_sync`
 

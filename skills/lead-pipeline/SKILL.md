@@ -22,8 +22,8 @@ Analyze the current CRM pipeline health.
 4. **Metrics context**
    - Call `get_metrics` for the period to correlate ad spend with lead generation
 
-5. **Diana insights**
-   - Call `ask_diana`: "Analyze my lead pipeline: which sources have the best conversion rates and what's the bottleneck?"
+5. **Metrikia Assistant insights**
+   - Call `ask_assistant`: "Analyze my lead pipeline: which sources have the best conversion rates and what's the bottleneck?"
 
 ## Output Format
 
@@ -50,8 +50,8 @@ digraph lead_pipeline {
     "Fetch deals" -> "Cross-reference by source";
     "Cross-reference by source" -> "Map attribution for converted";
     "Map attribution for converted" -> "Get period metrics";
-    "Get period metrics" -> "Ask Diana for analysis";
-    "Ask Diana for analysis" -> "Compile pipeline report";
+    "Get period metrics" -> "Ask the Metrikia Assistant for an analysis";
+    "Ask the Metrikia Assistant for an analysis" -> "Compile pipeline report";
 }
 ```
 

@@ -33,7 +33,7 @@ The OAuth access token is scoped to control access:
 
 | Scope | Purpose | Tools Granted |
 |-------|---------|---------------|
-| `mcp:read` | Read-only access to all data | list_leads, get_lead, list_campaigns, get_campaign_performance, get_creative_report, get_metrics, compare_performance, list_deals, get_attribution_journey, get_anomalies, get_budget_advice, get_sync_status, ask_diana |
+| `mcp:read` | Read-only access to all data | list_leads, get_lead, list_campaigns, get_campaign_performance, get_creative_report, get_metrics, compare_performance, list_deals, get_attribution_journey, get_anomalies, get_budget_advice, get_sync_status, ask_assistant |
 | `mcp:write` | CRM write operations | create_lead, transition_lead, create_deal, trigger_sync |
 
 MCP scopes are separate from REST API scopes (`leads:read`, `deals:write`, etc.). An MCP token cannot access REST API endpoints and vice versa.
@@ -113,7 +113,7 @@ Rate limits prevent abuse and protect shared infrastructure. They are implemente
 | Category | Limit | Window | Applies To |
 |----------|-------|--------|------------|
 | `mcp_read` | 60 requests | 1 minute | All 12 read tools |
-| `mcp_diana` | 10 requests | 5 minutes | ask_diana only |
+| Metrikia Assistant | 10 requests | 5 minutes | ask_assistant only |
 | `mcp_write` | 30 requests | 1 minute | create_lead, transition_lead, create_deal |
 | `mcp_sync` | 5 requests | 1 hour | trigger_sync only |
 
@@ -138,13 +138,13 @@ Most AI clients (Claude Code, Cursor) automatically respect the `Retry-After` he
 ### Why Different Limits
 
 - **Read tools (60/min):** AI agents are bursty -- a skill may chain 5-10 tool calls in rapid succession. 60/min accommodates this while preventing abuse.
-- **Diana (10/5min):** Diana calls an AI model internally. This limit prevents cost overruns and AI-calling-AI loops.
+- **Metrikia Assistant (10/5min):** An answer takes longer than a data read. Ask one strategic question instead of many tactical ones.
 - **Write tools (30/min):** Lower than read to prevent accidental bulk operations (e.g., an agent creating 100 leads in a loop).
 - **Sync (5/hour):** Syncs trigger external API calls to Meta/Google/TikTok. Too many syncs can exhaust platform rate limits.
 
 ## Circuit Breaker
 
-The `ask_diana` tool is protected by a circuit breaker to prevent cascading failures when Diana's AI backend is unavailable.
+The `ask_assistant` tool is protected by a circuit breaker to prevent cascading failures when the Metrikia Assistant is unavailable.
 
 ### State Machine
 
@@ -183,11 +183,11 @@ The `ask_diana` tool is protected by a circuit breaker to prevent cascading fail
 
 ### Behavior When Open
 
-When the circuit breaker is open, `ask_diana` returns immediately without calling the AI backend:
+When the Metrikia Assistant is temporarily unavailable, `ask_assistant` returns immediately:
 
 ```json
 {
-  "answer": "Diana is temporarily unavailable. Please try again in a moment.",
+  "answer": "Metrikia Assistant is temporarily unavailable. Please try again in a moment.",
   "conversationId": null
 }
 ```
@@ -196,13 +196,13 @@ This is not an error -- it is a graceful degradation. The rest of the MCP tools 
 
 ## Prompt Injection Protection
 
-The `ask_diana` tool tags all MCP-sourced questions with `source: "mcp"` in the DTO. This allows Diana's backend to:
+For a question asked through `ask_assistant`, the Metrikia Assistant can:
 
 1. Apply MCP-specific guardrails (e.g., refuse to execute commands).
 2. Adapt response format for AI client consumption.
 3. Sandbox the conversation separately from the web UI conversations.
 
-Diana's backend also has its own prompt injection defenses (instruction hierarchy, output validation) which are not documented here as they are part of the main Metrikia platform.
+The Metrikia Assistant also has its own prompt injection defenses, which are not documented here as they are part of the main Metrikia platform.
 
 ## GDPR Considerations
 
