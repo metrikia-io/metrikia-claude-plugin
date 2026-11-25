@@ -13,7 +13,7 @@ First read `${CLAUDE_PLUGIN_ROOT}/references/working-method.md`, once per sessio
 
 1. `get_ads_performance` with `level: "campaigns"` and `limit: 200`: find the campaign by its name. Two names match: ask which one. None does: `list_campaigns`. Keep its `id`, its `status`, its spend, its budget, its bidding and learning state.
 2. The same read on yesterday alone: does it still spend? Paused, or no spend: say it, stop there, and offer to look at what carries the sales now.
-3. `compare_performance` with its `campaignId` and the dates of the period: what moved on it.
+3. `compare_performance` with its `campaignId` and the dates of the period: what moved on it. In `current`, `spend`, `revenue`, `cpl`, `cpc` and `profit` are in cents, its `spend` reads 100 times the one of the campaign row: divide them by 100. `attributed` is not in cents.
 
 ## Ask the media buyer
 
@@ -36,4 +36,4 @@ Read the campaign at `level: "adsets"` then `level: "ads"` with its `campaignId`
 3. What limits it and since when, what could contradict it.
 4. The changes, numbered, on the campaign or on a named ad set or ad. Ask which ones the user keeps.
 
-Why the platform counts more sales than Metrikia credits: `get_campaign_performance` splits its count between after a click and without one, when the platform gives it.
+Why the platform counts more sales than Metrikia credits: `get_campaign_performance` splits its count between after a click and without one, when the platform gives it. Its amounts are in cents too, except those of `attributed`.

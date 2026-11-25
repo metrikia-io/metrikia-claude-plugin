@@ -36,6 +36,7 @@ A call is refused or comes back empty: read `errors.md`, next to this file. A te
 
 - Give every call the same first and last day (`YYYY-MM-DD`), ending yesterday: today is not over, and the tools do not share a default period. Name the period in the answer.
 - Real sales first: `get_metrics` for the whole account. With `onlineMer` or `salesByPlace`, part of the sales is made in store or on a marketplace: use the online figure to judge the ads and to compare, call it online, and show the total beside it.
+- Amounts are in the currency that `get_metrics` and `get_ads_performance` give. Some come in cents, divide them by 100 before you show or compare them: `spend`, `revenue`, `cpl`, `cpc` and `profit` in `get_campaign_performance` and in the `current` block of `compare_performance`, the amounts of `channelComparisons` in `get_metrics`, the values of a `spend` or `spend_zero` anomaly. The `attributed` and `allSources` blocks are not in cents. In doubt, compare the same spend over the same days in two tools: the one in cents reads 100 times more.
 - The sales a platform reports follow its own way of counting: present them as the platform's, beside what Metrikia credits, and never add up several platforms. A gap between the two is context, not the proof of a fault.
 - Credited sales fell: first look at the share of sales without a tracked visit, on the two periods. The agents read it. Without one, say that this check is missing.
 - A `null`, a missing field or an empty list means that nobody knows: write neither 0 nor a guess.

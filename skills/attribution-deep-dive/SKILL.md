@@ -11,7 +11,7 @@ First read `${CLAUDE_PLUGIN_ROOT}/references/working-method.md`, once per sessio
 
 ## Read
 
-`get_metrics` once: MER and its trend, `attributedByChannel`, and `roas.channelComparisons`, what Metrikia credits to each platform next to what the platform reports. The amounts of `channelComparisons` are in cents: divide them by 100. Take the dates from `period`.
+`get_metrics` once: MER and its trend, `attributedByChannel`, and `roas.channelComparisons`, what Metrikia credits to each platform next to what the platform reports. The amounts of `channelComparisons` are in cents: divide them by 100. Those of `attributedByChannel` are not. Take the dates from `period`.
 
 ## Ask the data scientist
 

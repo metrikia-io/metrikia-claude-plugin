@@ -12,10 +12,25 @@ Reference of the tools the Metrikia MCP server lists. The server sends the schem
 |---|---|
 | Account | Every call reads the account you signed in with, and nothing else |
 | Dates | `YYYY-MM-DD`, both included |
-| Amounts | In the currency of the account, not in cents, unless a field says otherwise |
+| Amounts | In the currency of the account, the one `get_metrics` and `get_ads_performance` give. Some are in cents: see the table below |
 | `null` | Unknown or not computable. Never zero |
 | `attributionModel` | `linear` (default), `first_touch`, `last_touch`, `time_decay`, `u_shaped`, `w_shaped`, `full_path`, `markov_chain`, `shapley_value`. It changes the attributed figures only, and the answer says which model it used. `markov_chain` and `shapley_value` need enough converted journeys: below it, the attributed figures stay at 0 |
 | Pages | A list gives `total`, the number of rows that match. One page is not the list |
+
+## Amounts in cents
+
+| Tool | In cents, to divide by 100 | In currency units |
+|---|---|---|
+| `compare_performance` | `spend`, `revenue`, `cpl`, `cpc` and `profit` of `current` | `attributed` and `allSources` |
+| `get_campaign_performance` | `spend`, `revenue`, `cpl`, `cpc` and `profit` | `attributed` |
+| `get_metrics` | `realRevenueAmount`, `platformRevenueAmount` and `spendAmount` of `roas.channelComparisons` | Every other amount |
+| `get_anomalies` | `detectedValue` and `baselineValue` when `metricType` is `spend` or `spend_zero` | The same two when it is `cpl` |
+| `get_budget_advice` | `total_credit_value` of `attributionInsights.channel_attribution` | Every other amount, those of the decisions included |
+| `get_ads_performance`, `get_creative_report` | None | Every amount |
+| `list_deals`, `get_attribution_journey` | None | `totalAmount`, `conversionValue` |
+| `create_deal` | `amount`, the one you send | `totalAmount`, the one it returns |
+
+In doubt, read the same spend over the same days in two tools: the one in cents reads 100 times more. What is not an amount: `ctr`, `roiPercent` and the changes of a comparison are in percent, `mer` and `roas` are ratios. For an anomaly, `ctr` is in percent, `roas` and `crm_roas` are ratios, and `lead_drought` counts leads a day.
 
 ---
 
@@ -62,7 +77,7 @@ Campaigns, ad sets or ads, with the figures of the Ads page. The first tool to r
 | Platform state | `bidStrategy`, `bidTarget`, `learningStatus`, `limitedByBudget`, `platformStateSince`, as read at the last sync |
 | Delivery, ad sets and ads | `outboundClicks`, `outboundCtr`, `costPerOutboundClick`, `frequencyYesterday`, `frequency7d`, `frequency30d`, `frequencyReadAt` |
 
-A budget, state or delivery field is absent when the platform gives none. `totals` covers every row: `spend`, `impressions`, `clicks`, `attributed`, and `allSources` with `sales` (every won sale, whatever brought it) and `costPerSale`. `allSources` is `null` when the call is narrowed to a campaign, an ad set or an ad account. An account that also sells in store or on a marketplace gets `onlineCostPerSale` and `salesByPlace` too: judge the ads on the online one.
+Every amount is in currency units. A budget, state or delivery field is absent when the platform gives none. `totals` covers every row: `spend`, `impressions`, `clicks`, `attributed`, and `allSources` with `sales` (every won sale, whatever brought it) and `costPerSale`. `allSources` is `null` when the call is narrowed to a campaign, an ad set or an ad account. An account that also sells in store or on a marketplace gets `onlineCostPerSale` and `salesByPlace` too: judge the ads on the online one.
 
 ### get_campaign_performance
 
@@ -77,6 +92,8 @@ One campaign.
 
 **Returns** `campaignId`, `period`, `impressions`, `clicks`, `spend`, `revenue` (reported by the platform), `leads`, `conversions` (purchases the platform counts), `conversionsClickThrough` and `conversionsViewThrough` (their split, `null` when unknown), `cpl`, `cpc`, `ctr`, `roas` and `roasSource` (`mta`, `crm` or `platform`: where the ratio comes from), `crmRoas`, `currency`, `appointments`, `deals`, `profit`, `roiPercent`, `attributionModel`, `attributed`.
 
+`spend`, `revenue`, `cpl`, `cpc` and `profit` are in cents: a `cpl` of 450 reads 4.50. The `attributed` block is in currency units.
+
 ### get_creative_report
 
 Ads of the account, ranked.
@@ -89,7 +106,7 @@ Ads of the account, ranked.
 | `campaignId`, `adAccountId` | string | | Filters |
 | `attributionModel` | string | `linear` | See above |
 
-**Returns** `creatives`, `total`, `currency`, `attributionModel`. Each ad: `adId`, `adName`, `platform`, `campaignName`, `isActive`, `impressions`, `clicks`, `spend`, `revenue`, `leads`, `deals`, `appointments`, `ctr`, `cpc`, `cpl`, `roas`, `roasSource` (`mta`, `crm` or `none`), `crmRoas`, `currency`. For the figures of the Ads page, use `get_ads_performance` with `level` `ads`.
+**Returns** `creatives`, `total`, `currency`, `attributionModel`. Each ad: `adId`, `adName`, `platform`, `campaignName`, `isActive`, `impressions`, `clicks`, `spend`, `revenue`, `leads`, `deals`, `appointments`, `ctr`, `cpc`, `cpl`, `roas`, `roasSource` (`mta`, `crm` or `none`), `crmRoas`, `currency`. Every amount is in currency units. For the figures of the Ads page, use `get_ads_performance` with `level` `ads`.
 
 ### compare_performance
 
@@ -104,6 +121,8 @@ Two periods side by side.
 
 **Returns** `period`, `current`, `changes` (in percent), `comparisonType`, `attributionModel`, `attributed` (`current` and `previous`) and `allSources` (`current` and `previous`, `null` when the call is narrowed). `current.leads` and `current.revenue` are the counts of the platforms.
 
+`spend`, `revenue`, `cpl`, `cpc` and `profit` of `current` are in cents: a `cpl` of 450 reads 4.50. The `attributed` and `allSources` blocks are in currency units.
+
 ### get_anomalies
 
 Anomalies found in the ad figures.
@@ -112,7 +131,7 @@ Anomalies found in the ad figures.
 |-----------|------|---------|-------------|
 | `includeAcknowledged` | bool | false | Adds the ones acknowledged over the last 30 days |
 
-**Returns** `total`, `returned`, `bySeverity`, `byMetricType` and `anomalies` (50 at most, most severe first): `id`, `metricType`, `metricLabel`, `severity` (`info`, `warning`, `critical`), `detectedValue`, `baselineValue`, `deltaPercent`, `campaignId`, `detectedAt`, `isActive`. An open anomaly expires 7 days after its detection.
+**Returns** `total`, `returned`, `bySeverity`, `byMetricType` and `anomalies` (50 at most, most severe first): `id`, `metricType`, `metricLabel`, `severity` (`info`, `warning`, `critical`), `detectedValue`, `baselineValue`, `deltaPercent`, `campaignId`, `detectedAt`, `isActive`. An open anomaly expires 7 days after its detection. `detectedValue` and `baselineValue` are in the unit of `metricType`: in cents for `spend` and `spend_zero`, in currency units for `cpl`, in percent for `ctr`, a ratio for `roas` and `crm_roas`, leads a day for `lead_drought`.
 
 ### get_budget_advice
 
@@ -124,7 +143,7 @@ The budget decision of the day for each campaign that spent yesterday.
 | `language` | string | `en` | `en` or `fr` |
 | `attributionModel` | string | `linear` | For `attributionInsights` only |
 
-**Returns** `analysis`, `attributionInsights`, `advice`, `period`, `generatedAt`, `attributionModel`, `analysisAttributionModel`. The decisions are in `analysis.budgetDecisions`: `targetMissing`, `targetCpa`, `breakEvenCpa`, `currency`, `readOn` and `campaigns`, most severe first, each with `campaignName`, `platform`, `verdict` (`raise`, `hold`, `lower`, `pause`), `reason`, `dailyBudget`, `suggestedDailyBudget`, its spend, purchases and cost per purchase, and `learningStatus`.
+**Returns** `analysis`, `attributionInsights`, `advice`, `period`, `generatedAt`, `attributionModel`, `analysisAttributionModel`. The decisions are in `analysis.budgetDecisions`: `targetMissing`, `targetCpa`, `breakEvenCpa`, `currency`, `readOn` and `campaigns`, most severe first, each with `campaignName`, `platform`, `verdict` (`raise`, `hold`, `lower`, `pause`), `reason`, `dailyBudget`, `suggestedDailyBudget`, its spend, purchases and cost per purchase, and `learningStatus`. Their amounts are in currency units.
 
 The decisions are final: no other move is to be derived from the rest of the answer, which is context. `targetMissing` true: no target cost per purchase in the brand sheet, nothing is decided. The tool follows the Budget Advisor feature of the account: off, it answers `access_denied`.
 
@@ -145,12 +164,12 @@ The MER of the account and what Metrikia credits to each platform and channel. F
 | Field | Content |
 |---|---|
 | `mer`, `previousMer`, `merTrend` | Sales divided by spend, the same for the period before, and its change. `null` comes with a reason (`merNotComputableReason`, `merTrendNotComputableReason`) |
-| `sales`, `spend`, `currency`, `period`, `previousPeriod`, `comparison` | Both days of a period are included |
+| `sales`, `spend`, `currency`, `period`, `previousPeriod`, `comparison` | Amounts in currency units, like every other amount of this answer but one block. Both days of a period are included |
 | `storeNetRevenue`, `salesOutsideStore`, `enteredOrImportedSales` | What the sales are made of: store orders net of refunds, every other won sale, and within them the ones entered or imported by hand, with their counts and shares |
 | `suspectedDuplicatesRemoved` | Payments or orders left out because they repeat a CRM sale of the same lead |
 | `otherCurrencySales`, `spendInOtherCurrencies` | Given apart, never converted |
 | `onlineMer`, `previousOnlineMer`, `onlineMerTrend`, `salesByPlace` | Only for an account that also sells in store or on a marketplace: `online`, `inStore` and `marketplace`. Judge the ads and compare the periods on the online figure |
-| `roas.channelComparisons` | By ad platform: `realRoas` and `realRevenueAmount` (credited by Metrikia), `platformRoas` and `platformRevenueAmount` (reported by the platform), `spendAmount`. Amounts in cents |
+| `roas.channelComparisons` | By ad platform: `realRoas` and `realRevenueAmount` (credited by Metrikia), `platformRoas` and `platformRevenueAmount` (reported by the platform), `spendAmount`. This block is the one with its amounts in cents |
 | `attributedByChannel` | By channel and source: `touchpoints`, `attributedConversions`, `attributedRevenue` |
 
 `totalRevenue`, `totalSpend` and their currencies are former names of `sales`, `spend` and `currency`.
@@ -163,7 +182,7 @@ The customer journey of one lead.
 |-----------|------|---------|-------------|
 | `leadId` | string | required | From `list_leads` |
 
-**Returns** `leadId`, `leadName`, `dealId`, `conversionValue`, `conversionCurrency`, `convertedAt`, `touchpointCount`, `firstTouchAt`, `lastTouchAt`, `touchpoints`, `attributionByModel`. Each touchpoint: `id`, `channel`, `position`, `isFirst`, `isLast`, `isLeadCreation`, `isOpportunity`, `daysBefore`, `occurredAt`, `deviceType`, `campaignName`, `utmSource`, `utmMedium`, `utmCampaign`, `landingPageUrl`, and `attributionCredits`, its credit under each model. `attributionByModel` is the total credit shared under each model.
+**Returns** `leadId`, `leadName`, `dealId`, `conversionValue`, `conversionCurrency`, `convertedAt`, `touchpointCount`, `firstTouchAt`, `lastTouchAt`, `touchpoints`, `attributionByModel`. Each touchpoint: `id`, `channel`, `position`, `isFirst`, `isLast`, `isLeadCreation`, `isOpportunity`, `daysBefore`, `occurredAt`, `deviceType`, `campaignName`, `utmSource`, `utmMedium`, `utmCampaign`, `landingPageUrl`, and `attributionCredits`, its credit under each model. `attributionByModel` is the total credit shared under each model. `conversionValue` is in units of `conversionCurrency`. A credit is a share of the sale, not an amount.
 
 Channels: `paid_search`, `paid_social`, `paid_video`, `display`, `ctv`, `retail_media`, `organic`, `email`, `sms`, `referral`, `ai_assistant`, `direct`. A journey holds clicks and visits. No touchpoint means no tracked visit.
 
@@ -201,7 +220,7 @@ Channels: `paid_search`, `paid_social`, `paid_video`, `display`, `ctv`, `retail_
 | `page` | int | 1 | Page number |
 | `status` | string | | `won`, `pending`, `trial_pending`, `lost` |
 
-**Returns** `deals`, `total`, `page`, `limit`. Each deal: `id`, `status`, `totalAmount`, `currency`, `closerId`, `closedAt`, `createdAt`, `leadId`. Latest first by `closedAt`. Any other `status` is ignored, and there is no date filter.
+**Returns** `deals`, `total`, `page`, `limit`. Each deal: `id`, `status`, `totalAmount`, `currency`, `closerId`, `closedAt`, `createdAt`, `leadId`. `totalAmount` is in units of the `currency` of the deal, not in cents. Latest first by `closedAt`. Any other `status` is ignored, and there is no date filter.
 
 ---
 

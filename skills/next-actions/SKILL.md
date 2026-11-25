@@ -23,8 +23,8 @@ Follow-up with the `conversationId`: the action the user refuses, with the reaso
 
 1. `get_sync_status`: a late source is the first action.
 2. `get_ads_performance` with `level: "campaigns"`: what runs, and whether the sales of the account reach the ads.
-3. `get_anomalies`: the open ones, most severe first.
-4. The decisions of the day from `get_budget_advice` when it answers (see the budget-optimizer skill).
+3. `get_anomalies`: the open ones, most severe first. The values of a `spend` or `spend_zero` anomaly are in cents: divide them by 100.
+4. The decisions of the day from `get_budget_advice` when it answers (see the budget-optimizer skill). Their amounts are not in cents.
 5. For an account that sells through leads: how many wait at `new`, `no_response` and `no_show` (`list_leads` with `limit: 1`, read `total`).
 
 Give what these tools show or decide, even if it makes fewer than three actions.

@@ -23,7 +23,7 @@ Follow-up with the `conversationId` when the user keeps some lines only, adds a 
 
 ## Without an agent
 
-`get_budget_advice`, with `language` set to the language of the answer. Use `analysis.budgetDecisions` as it stands: verdict, current and suggested budget of each campaign that spent yesterday, reason in plain words. These decisions are final, add no other move. Leave the `advice` text aside: it comments, it does not decide.
+`get_budget_advice`, with `language` set to the language of the answer. Use `analysis.budgetDecisions` as it stands: verdict, current and suggested budget of each campaign that spent yesterday, reason in plain words. Its amounts are in the currency of the account, not in cents. These decisions are final, add no other move. Leave the `advice` text aside: it comments, it does not decide.
 
 - `targetMissing: true`: nothing is decided. The target cost per purchase is missing in the brand sheet, and `ask_assistant` tells where to fill it.
 - `access_denied`, or no decision: show the spend and the sales by campaign (leads, appointments and deals for a lead account), and say what is missing to decide.

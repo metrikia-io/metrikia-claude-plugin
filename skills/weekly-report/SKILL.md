@@ -15,7 +15,7 @@ The week: the 7 days that end yesterday, or the one the user names, against the 
 
 1. `get_sync_status`: a source that is late is said before any figure.
 2. `get_metrics` for the week, then for the `previousPeriod` it returns: sales, spend and MER of both.
-3. `compare_performance` with `comparisonType: "previous_period"`: cost per sale, credited sales, and the leads the platforms count.
+3. `compare_performance` with `comparisonType: "previous_period"`: cost per sale in `allSources`, credited sales in `attributed`, and the leads the platforms count in `current`. The amounts of `current` are in cents, its `spend` reads 100 times the one of `get_metrics`: divide its `cpl` by 100. The other two blocks are not in cents.
 
 ## Ask the media buyer
 
@@ -27,7 +27,7 @@ Follow-up with the `conversationId`: the point that stays unexplained, or the de
 
 ## Without an agent
 
-Add `get_ads_performance` with `level: "campaigns"` for who carries the spend and the sales, `get_anomalies` for the open ones, most severe first, and the decisions of the day from `get_budget_advice` when it answers (see the budget-optimizer skill). Say that the causes are not read here: nothing is explained, only shown.
+Add `get_ads_performance` with `level: "campaigns"` for who carries the spend and the sales, `get_anomalies` for the open ones, most severe first (the values of a `spend` or `spend_zero` anomaly are in cents, divide by 100), and the decisions of the day from `get_budget_advice` when it answers (see the budget-optimizer skill). Say that the causes are not read here: nothing is explained, only shown.
 
 ## Deliver
 
