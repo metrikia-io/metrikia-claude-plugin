@@ -8,6 +8,7 @@ You can read this Metrikia account (ads, sales, leads, attribution) and ask the 
 |-------|-------------|
 | `/metrikia:next-actions` | wants a few actions for today rather than a report |
 | `/metrikia:weekly-report` | asks how the week went |
+| `/metrikia:dashboard` | wants a page to look at or to show: the account, the ads, the decisions |
 | `/metrikia:budget-optimizer` | asks which budgets to raise, lower or cut, or how to split an amount |
 | `/metrikia:campaign-audit` | names one campaign and asks what to do with it |
 | `/metrikia:creative-analysis` | asks which ads sell, which wear out, what to make next |

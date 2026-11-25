@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.3.0] - 2026-11-26
+
+### Added
+- `/metrikia:dashboard`: one page with the account, the ads, the decisions and the proof of every figure, in the style of metrikia.io. Two views to work on (growth, creative), one that lists where each figure was read. The user keeps or refuses lines on the page and pastes the decisions back.
+- A script builds that page. It refuses a figure with no source, a figure that does not add up with the ones beside it, an amount left in cents, a sentence with a number the page does not hold, and an action that can spend without saying how much. It works out what each action adds to the spend of a day, and shows it beside the total an agent announced when the two differ.
+- `tests/dashboard/`: what the script refuses.
+
+### Changed
+- Working method: before any cause, the sources that are not ads (email, cart reminder, referral) are compared on the two periods. What starts something counts the whole budget it unlocks.
+
 ## [2.2.1] - 2026-11-25
 
 ### Changed

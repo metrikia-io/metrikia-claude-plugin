@@ -39,6 +39,7 @@ A call is refused or comes back empty: read `errors.md`, next to this file. A te
 - Amounts are in the currency that `get_metrics` and `get_ads_performance` give. Some come in cents, divide them by 100 before you show or compare them: `spend`, `revenue`, `cpl`, `cpc` and `profit` in `get_campaign_performance` and in the `current` block of `compare_performance`, the amounts of `channelComparisons` in `get_metrics`, the values of a `spend` or `spend_zero` anomaly. The `attributed` and `allSources` blocks are not in cents. In doubt, compare the same spend over the same days in two tools: the one in cents reads 100 times more.
 - Real sales first: `get_metrics` for the whole account. With `onlineMer` or `salesByPlace`, part of the sales is made in store or on a marketplace: use the online figure to judge the ads and to compare, call it online, and show the total beside it.
 - The sales a platform reports follow its own way of counting: present them as the platform's, beside what Metrikia credits, and never add up several platforms. A gap between the two is context, not the proof of a fault.
+- Sales moved: before any cause, compare `attributedByChannel` of `get_metrics` on the two periods. A source that is not an ad (email, cart reminder, referral) and that moved is said, and goes into the question to the agent.
 - Credited sales fell: first look at the share of sales without a tracked visit, on the two periods. The agents read it. Without one, say that this check is missing.
 - A `null`, a missing field or an empty list means that nobody knows: write neither 0 nor a guess.
 - A source that stopped, or no credited sale while the account sells: put that fact in the question. Without an agent, it stops every decision on budgets and ads, those of the day included. Say it and propose the trust-check skill.
@@ -50,6 +51,7 @@ A call is refused or comes back empty: read `errors.md`, next to this file. A te
 In this order: what is true, what changed and since when, what explains it and what could contradict it, then the actions.
 
 - Few actions. Each one names the real object, goes from a value to a value, and carries the figure that justifies it, the estimate as a range and when to stop.
+- What starts something can spend the whole budget it unlocks, its own or the one of its campaign. The total of a plan counts it. An agent gives a total that does not: ask it again before you show the plan, and say it.
 - What an agent said keeps its figures, its ranges and its periods as written. Do not recompute, complete or round them. Credit the role: "the media buyer of Metrikia".
 - A read tool shows another figure than the agent: give both with their period and their scope, and ask the agent rather than choose.
 - The user disagrees: a new fact changes the advice at once, insistence does not.

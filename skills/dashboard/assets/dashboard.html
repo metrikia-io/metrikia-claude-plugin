@@ -1,0 +1,777 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; form-action 'none'; base-uri 'none'">
+<title>Metrikia</title>
+<style>
+:root{
+  --ink:#0a0a0b;--ink2:#0e0e10;--surface:#111113;--raised:#16161a;--bone:#f4f3f0;
+  --dim:#85858d;--dim2:#a9a9ad;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.17);--line3:rgba(255,255,255,.4);
+  --acc:#00e599;--acc-hover:#0ff0a6;--acc-ink:#04120c;--teal:#00a7c5;--cut:#f43f5e;--watch:#f5b544;
+  --meta:#4c8bf5;--google:#f5b544;--tiktok:#ff5a6e;--ease:cubic-bezier(.4,0,.2,1);
+}
+*{box-sizing:border-box}
+html{color-scheme:dark;background:var(--ink);scroll-behavior:smooth}
+body{margin:0;background:var(--ink);color:var(--bone);font:400 15px/1.55 Switzer,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;overflow-x:clip}
+::selection{background:color-mix(in srgb,var(--acc) 28%,transparent)}
+h1,h2,h3,p,ul,ol,dl,dd,figure{margin:0;padding:0}
+ul,ol{list-style:none}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+.wrap{width:100%;max-width:1200px;margin:0 auto;padding:0 20px}
+.hidden{display:none!important}
+
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--ink) 82%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:22px;min-height:60px;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}
+.mark{display:inline-flex;align-items:center;font-weight:700;font-size:18px;letter-spacing:-.02em;text-transform:uppercase}
+.mark i{width:6px;height:6px;border-radius:50%;background:var(--acc);margin-left:3px}
+.tabs{display:flex;gap:4px;margin-left:auto}
+.tabs button{padding:9px 14px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim2);border:1px solid transparent;border-radius:2px;transition:color .2s var(--ease),border-color .2s var(--ease)}
+.tabs button:hover{color:var(--bone)}
+.tabs button[aria-selected=true]{color:var(--bone);border-color:var(--line2);background:var(--surface)}
+
+.hero{position:relative;overflow:clip;border-bottom:1px solid var(--line)}
+.hero::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.13) 1px,transparent 1.2px);background-size:22px 22px;mask-image:radial-gradient(80% 90% at 78% 10%,#000 0,transparent 72%)}
+.hero::after{content:"";position:absolute;inset:-40% -10% auto auto;width:720px;height:720px;background:radial-gradient(closest-side,color-mix(in srgb,var(--acc) 22%,transparent),transparent);pointer-events:none}
+.hero .wrap{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);gap:clamp(28px,5vw,72px);align-items:center;padding-top:clamp(40px,7vh,84px);padding-bottom:clamp(36px,6vh,72px)}
+.kicker{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim2)}
+.kicker b{color:var(--acc);font-weight:500}
+h1{margin-top:18px;font-size:clamp(27px,4vw,50px);line-height:1.1;letter-spacing:-.028em;font-weight:600;text-wrap:balance}
+h1 em{font-style:normal;color:var(--acc)}
+h1 em.bad{color:var(--cut)}
+.hero .lead{margin-top:18px;max-width:58ch;color:var(--dim2);font-size:clamp(15px,1.3vw,17px)}
+.big{border:1px solid var(--line2);border-radius:6px;background:linear-gradient(180deg,color-mix(in srgb,var(--acc) 7%,var(--ink2)),var(--ink2));padding:26px 26px 22px;position:relative}
+.big::before{content:"";position:absolute;inset:-1px 0 auto;height:1px;background:linear-gradient(90deg,transparent,var(--acc),transparent)}
+.lbl{font-size:12px;color:var(--dim2)}
+.big .v{font-size:clamp(54px,7vw,84px);line-height:1;letter-spacing:-.04em;font-weight:600;margin:10px 0 12px}
+
+.band{display:flex;gap:12px;align-items:flex-start;border:1px solid color-mix(in srgb,var(--cut) 50%,transparent);background:color-mix(in srgb,var(--cut) 9%,var(--ink));border-radius:4px;padding:14px 16px;margin-top:22px}
+.band.notice{border-color:var(--line2);background:var(--ink2);color:var(--dim2);font-size:13px}
+.band svg{flex:none;margin-top:2px}
+
+section{padding:clamp(44px,7vh,84px) 0;border-bottom:1px solid var(--line)}
+.idx{display:flex;align-items:baseline;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+.idx .n{font-size:12px;letter-spacing:.14em;color:var(--acc);font-weight:500}
+.idx h2{font-size:clamp(21px,2.4vw,30px);letter-spacing:-.02em;font-weight:600;line-height:1.15}
+.idx p{color:var(--dim2);font-size:14px;width:100%}
+
+.grid{display:grid;border-left:1px solid var(--line);border-top:1px solid var(--line)}
+.grid>*{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:20px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(178px,1fr))}
+.kpis .v{font-size:27px;font-weight:600;letter-spacing:-.02em;margin:6px 0 8px;line-height:1.1}
+.delta{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--dim2)}
+.delta svg{flex:none}
+.delta{flex-wrap:wrap;row-gap:0}
+.delta>span{white-space:nowrap}
+.delta small{color:var(--dim);font-size:12px;white-space:nowrap}
+
+.fig{cursor:help;border-radius:2px;transition:background .15s var(--ease)}
+.fig:hover,.fig:focus-visible{background:color-mix(in srgb,var(--acc) 14%,transparent)}
+#tip{position:fixed;z-index:60;max-width:320px;pointer-events:none;background:var(--raised);border:1px solid var(--line2);border-radius:4px;padding:10px 12px;font-size:12.5px;line-height:1.45;box-shadow:0 18px 50px rgba(0,0,0,.55);opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s}
+#tip.on{opacity:1;transform:none}
+#tip b{display:block;font-size:14px;font-weight:600}
+#tip span{display:block;color:var(--dim2)}
+#tip code{font:500 11.5px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--acc)}
+
+.plan{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:start}
+.act{position:relative;display:grid;grid-template-columns:56px minmax(0,1fr);gap:0 14px;border:1px solid var(--line);border-radius:6px;background:var(--ink2);padding:22px;transition:border-color .2s var(--ease),background .2s var(--ease)}
+.act+.act{margin-top:14px}
+.act.kept{border-color:color-mix(in srgb,var(--acc) 60%,transparent);background:color-mix(in srgb,var(--acc) 5%,var(--ink2))}
+.act .no{font-size:38px;line-height:1;font-weight:600;letter-spacing:-.04em;color:var(--dim)}
+.act.kept .no{color:var(--acc)}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);border-radius:2px;padding:3px 8px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--dim2);white-space:nowrap}
+.chip.good{color:var(--bone);border-color:color-mix(in srgb,var(--acc) 55%,transparent)}
+.chip.bad{color:var(--bone);border-color:color-mix(in srgb,var(--cut) 65%,transparent)}
+.chip.watch{color:var(--bone);border-color:color-mix(in srgb,var(--watch) 60%,transparent)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--dim);flex:none;display:inline-block}
+.act h3{font-size:17px;line-height:1.3;font-weight:600;letter-spacing:-.01em;margin-top:10px;overflow-wrap:anywhere}
+.act .move{font-size:clamp(19px,2vw,25px);letter-spacing:-.02em;font-weight:600;margin-top:4px;color:var(--bone)}
+.act .why{color:var(--dim2);margin-top:8px;max-width:64ch}
+.act dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px 22px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.act dt{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+.act dd{font-size:13.5px;margin-top:2px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:11px 18px;border-radius:2px;border:1px solid var(--line2);font-size:12px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;transition:background .2s var(--ease),border-color .2s var(--ease),color .2s var(--ease)}
+.btn:hover{border-color:var(--line3)}
+.btn.acc{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
+.btn.acc:hover{background:var(--acc-hover)}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.act .btn{margin-top:18px}
+.side{position:sticky;top:84px;border:1px solid var(--line2);border-radius:6px;background:var(--surface);padding:22px}
+.side .v{font-size:34px;letter-spacing:-.03em;font-weight:600;line-height:1.1;margin:6px 0 4px}
+.side .btn{width:100%;margin-top:18px}
+.side p{font-size:13px;color:var(--dim2)}
+.side p+p{margin-top:8px}
+
+.legend{display:flex;gap:18px;font-size:12.5px;color:var(--dim2);margin-bottom:12px;flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.key{width:14px;height:8px;border-radius:2px;display:inline-block}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{font-weight:500;text-align:right;color:var(--dim);font-size:11.5px;letter-spacing:.04em;padding:8px 10px;border-bottom:1px solid var(--line2);white-space:nowrap}
+td{padding:14px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;vertical-align:middle;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;padding-left:0;white-space:normal;min-width:210px}
+td.bars{width:30%;min-width:200px;text-align:left}
+.name{display:flex;gap:9px;align-items:baseline;overflow-wrap:anywhere;line-height:1.35}
+.name .dot{transform:translateY(-1px)}
+.sub{display:block;font-size:12px;color:var(--dim);margin-top:2px}
+.bar{display:block;height:8px;border-radius:0 4px 4px 0;min-width:2px;background:var(--dim);opacity:.75}
+.bar.s{background:var(--acc);opacity:1;margin-top:2px}
+tr:hover .bar{filter:brightness(1.15)}
+
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:24px}
+.card{border:1px solid var(--line);border-radius:6px;background:var(--ink2);padding:22px;min-width:0}
+.card h3{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.card .hint{color:var(--dim);font-size:12.5px;margin:2px 0 14px}
+svg text{font:400 11px Switzer,ui-sans-serif,system-ui,sans-serif;fill:var(--dim)}
+svg text.lab{fill:var(--bone);font-size:12px}
+.gap{padding:14px 0;border-top:1px solid var(--line)}
+.gap:first-of-type{border-top:0}
+.gap .row{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;margin-bottom:6px;flex-wrap:wrap}
+.gap .row span:last-child{color:var(--dim2)}
+
+.rel{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.rel .t{display:flex;gap:8px;align-items:center;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim2);margin-bottom:8px}
+
+.crea{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr));gap:16px}
+.ad{border:1px solid var(--line);border-radius:6px;background:var(--ink2);overflow:hidden;display:flex;flex-direction:column;transition:border-color .2s var(--ease),transform .2s var(--ease)}
+.ad:hover{border-color:var(--line2);transform:translateY(-2px)}
+.ad .art{position:relative;height:112px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,color-mix(in srgb,var(--tone) 24%,var(--surface)),var(--surface) 70%);display:flex;align-items:flex-end;justify-content:space-between;padding:14px}
+.ad .art::after{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.14) 1px,transparent 1.2px);background-size:14px 14px;mask-image:linear-gradient(200deg,#000,transparent 70%)}
+.ad .art strong{font-size:34px;line-height:1;letter-spacing:-.04em;font-weight:600;position:relative;z-index:1}
+.ad .art .chip{position:relative;z-index:1;background:var(--ink)}
+.ad .in{padding:16px;display:flex;flex-direction:column;gap:12px;flex:1}
+.ad h3{font-size:14px;line-height:1.35;font-weight:600;overflow-wrap:anywhere}
+.ad dl{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+.ad dt{font-size:11.5px;color:var(--dim)}
+.ad dd{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.ad .q{font-size:13px;color:var(--dim2);margin-top:auto}
+.ad .q small{display:block;color:var(--dim);margin-top:4px}
+
+.brief{border:1px solid var(--line);border-radius:6px;background:var(--ink2);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}
+.brief+.brief{margin-top:16px}
+.brief .l{padding:26px;border-right:1px solid var(--line);background:linear-gradient(160deg,color-mix(in srgb,var(--acc) 9%,var(--ink2)),var(--ink2) 60%)}
+.brief .r{padding:26px;min-width:0}
+.brief .hook{font-size:clamp(22px,2.6vw,32px);line-height:1.14;letter-spacing:-.025em;font-weight:600;margin-top:14px;text-wrap:balance}
+.brief h3{font-size:13px;color:var(--dim2);font-weight:500;margin-top:10px}
+.beats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.beats li{border:1px solid var(--line2);border-radius:4px;padding:10px;font-size:12.5px;line-height:1.4;background:var(--surface);min-height:84px}
+.beats li b{display:block;color:var(--acc);font-size:11px;letter-spacing:.1em;font-weight:500;margin-bottom:4px}
+.copy{margin-top:14px;border-left:2px solid var(--acc);padding:2px 0 2px 14px;white-space:pre-wrap}
+.brief dl{margin-top:16px;display:grid;gap:8px;font-size:13px}
+.brief dt{color:var(--dim);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase}
+.brief dd{color:var(--dim2)}
+
+footer{padding:34px 0 60px;color:var(--dim);font-size:12.5px}
+footer .wrap{display:flex;gap:10px 26px;flex-wrap:wrap;align-items:center}
+footer .ok{color:var(--dim2)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+.rise{opacity:0;transform:translateY(14px);animation:rise .6s var(--ease) forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.rise{animation:none;opacity:1;transform:none}html{scroll-behavior:auto}*{transition:none!important}}
+@media (max-width:900px){.hero .wrap,.plan,.brief{grid-template-columns:minmax(0,1fr)}.brief .l{border-right:0;border-bottom:1px solid var(--line)}.side{position:static}}
+@media (max-width:560px){.tabs{margin-left:0;width:100%}.tabs button{flex:1;padding:9px 6px}.act{grid-template-columns:minmax(0,1fr)}.act .no{font-size:24px;margin-bottom:8px}.act .btn{width:100%}}
+@media print{.top,.btn,.tabs{display:none}.view{display:block!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="tip" role="status"></div>
+<script type="application/json" id="data">__METRIKIA_DATA__</script>
+<script>
+(function () {
+  'use strict';
+  var data = JSON.parse(document.getElementById('data').textContent);
+  var FR = data.lang === 'fr';
+  var LOCALE = FR ? 'fr-FR' : 'en-GB';
+  var WORDS = FR ? {
+    growth: 'Croissance', creative: 'Créas', proof: 'Preuves', versus: 'contre', readOn: 'Lu le', before: 'avant',
+    act: 'À décider', actLead: 'Chaque ligne se garde ou se refuse. Rien n\'est appliqué depuis cette page.',
+    keep: 'Je garde', kept: 'Gardée', plan: 'Votre plan', perDay: 'par jour', upTo: 'jusqu\'à', none: 'Aucune ligne gardée',
+    copy: 'Copier mes décisions', copied: 'Copié', copyText: 'Copier le texte', more: 'dépense en plus, au plus', less: 'dépense en moins',
+    same: 'La dépense ne change pas', unknown: 'Montant à confirmer avant d\'appliquer', spendNow: 'Dépense actuelle',
+    effect: 'Effet attendu', stop: 'On arrête si', by: 'Conseil de', keepMsg: 'Je garde ces lignes :', dropMsg: 'Je refuse :',
+    money: 'Où va l\'argent', moneyLead: 'La dépense, et les ventes que Metrikia crédite à chaque campagne.',
+    campaign: 'Campagne', ad: 'Pub', spend: 'Dépense', credited: 'Ventes créditées', sales: 'Ventes', roas: 'ROAS crédité', cps: 'Coût par vente', platRoas: 'ROAS régie',
+    trend: 'Ce qui a bougé', gap: 'Ce que les régies déclarent', gapLead: 'Leur propre façon de compter, à côté de ce que Metrikia crédite. Un écart est un repère, pas la preuve d\'une panne.',
+    claimed: 'déclaré par la régie', creditedBy: 'crédité par Metrikia',
+    rel: 'Peut-on s\'y fier', ok: 'Fiable', watch: 'À surveiller', broken: 'Pas fiable',
+    map: 'Dépense et rendement des pubs', mapLead: 'À droite, l\'argent. En haut, ce qu\'il rapporte.', account: 'compte', ads: 'Les pubs qui comptent',
+    freq: 'Répétition 7 j', ctr: 'Taux de clic', next: 'Les prochaines pubs à faire', isNew: 'Nouveau', taken: 'Repris de ce qui vend', judged: 'On la juge sur',
+    proofLead: 'Chaque chiffre de cette page, l\'endroit où il a été lu, et sa période.', figure: 'Chiffre', shown: 'Affiché', tool: 'Lecture', reads: 'Ce qui a été demandé', where: 'Champ',
+    checks: 'chiffres sourcés', cross: 'recoupements justes', unchecked: 'Recoupements non exécutés sur cette page.',
+    mismatch: 'Le total annoncé ne correspond pas aux lignes.', says: 'annonce', linesSay: 'les lignes font bouger la dépense de', to: 'à', ask: 'Demandez avant d\'appliquer.',
+    kinds: {raise: 'Augmenter', lower: 'Baisser', pause: 'Couper', start: 'Lancer', make: 'Créer', fix: 'Corriger'}
+  } : {
+    growth: 'Growth', creative: 'Creative', proof: 'Proof', versus: 'against', readOn: 'Read on', before: 'before',
+    act: 'To decide', actLead: 'Keep or refuse each line. Nothing is applied from this page.',
+    keep: 'Keep', kept: 'Kept', plan: 'Your plan', perDay: 'a day', upTo: 'up to', none: 'No line kept',
+    copy: 'Copy my decisions', copied: 'Copied', copyText: 'Copy the text', more: 'more spend, at most', less: 'less spend',
+    same: 'The spend does not change', unknown: 'Amount to confirm before applying', spendNow: 'Spend today',
+    effect: 'Expected effect', stop: 'Stop if', by: 'Advice of', keepMsg: 'I keep these lines:', dropMsg: 'I refuse:',
+    money: 'Where the money goes', moneyLead: 'The spend, and the sales Metrikia credits to each campaign.',
+    campaign: 'Campaign', ad: 'Ad', spend: 'Spend', credited: 'Credited sales', sales: 'Sales', roas: 'Credited ROAS', cps: 'Cost per sale', platRoas: 'Platform ROAS',
+    trend: 'What moved', gap: 'What the platforms report', gapLead: 'Their own way of counting, beside what Metrikia credits. A gap is context, not the proof of a fault.',
+    claimed: 'reported by the platform', creditedBy: 'credited by Metrikia',
+    rel: 'Can you rely on it', ok: 'Reliable', watch: 'Watch', broken: 'Not reliable',
+    map: 'Spend and return of the ads', mapLead: 'To the right, the money. Upwards, what it returns.', account: 'account', ads: 'The ads that count',
+    freq: 'Frequency 7 d', ctr: 'Click rate', next: 'The next ads to make', isNew: 'New', taken: 'Taken from what sells', judged: 'Judged on',
+    proofLead: 'Every figure of this page, where it was read, and its period.', figure: 'Figure', shown: 'Shown', tool: 'Reading', reads: 'What was asked', where: 'Field',
+    checks: 'figures with a source', cross: 'cross-checks right', unchecked: 'The cross-checks did not run on this page.',
+    mismatch: 'The announced total does not match the lines.', says: 'announces', linesSay: 'the lines move the spend from', to: 'to', ask: 'Ask before applying.',
+    kinds: {raise: 'Raise', lower: 'Lower', pause: 'Pause', start: 'Start', make: 'Make', fix: 'Fix'}
+  };
+  var proofs = [];
+  var kept = {};
+  var sources = data.sources || {};
+
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined && text !== null) node.textContent = String(text);
+    return node;
+  }
+  function add(parent) {
+    for (var i = 1; i < arguments.length; i += 1) if (arguments[i]) parent.appendChild(arguments[i]);
+    return parent;
+  }
+  function svg(tag, attributes) {
+    var node = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    Object.keys(attributes || {}).forEach(function (name) { node.setAttribute(name, attributes[name]); });
+    return node;
+  }
+  function isNumber(value) { return typeof value === 'number' && isFinite(value); }
+
+  function money(value, digits) {
+    var places = digits === undefined ? (Math.abs(value) < 1000 && value % 1 !== 0 ? 2 : 0) : digits;
+    return new Intl.NumberFormat(LOCALE, {style: 'currency', currency: data.currency, minimumFractionDigits: places, maximumFractionDigits: places}).format(value);
+  }
+  function number(value, digits) { return new Intl.NumberFormat(LOCALE, {maximumFractionDigits: digits === undefined ? 2 : digits}).format(value); }
+  function show(value, format) {
+    if (!isNumber(value)) return '-';
+    if (format === 'money') return money(value);
+    if (format === 'percent') return number(value, 1) + (FR ? '\u00a0%' : '%');
+    if (format === 'ratio') return new Intl.NumberFormat(LOCALE, {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(value);
+    return number(value);
+  }
+  function day(text) {
+    var date = new Date(text + 'T12:00:00Z');
+    return isNaN(date) ? text : new Intl.DateTimeFormat(LOCALE, {day: 'numeric', month: 'short', timeZone: 'UTC'}).format(date);
+  }
+  function span(period) {
+    var sameMonth = period.start.slice(0, 7) === period.end.slice(0, 7);
+    return (sameMonth ? String(Number(period.start.slice(8))) : day(period.start)) + (FR ? ' au ' : ' to ') + day(period.end);
+  }
+  function signed(value) { return (value > 0 ? '+' : '') + money(value); }
+
+  function figure(text, label, source, field) {
+    var origin = sources[source] || {};
+    var node = el('span', 'fig', text);
+    node.tabIndex = 0;
+    var lines = [label, origin.tool, origin.reads, field];
+    node.addEventListener('mouseenter', function () { tip(node, text, lines); });
+    node.addEventListener('focus', function () { tip(node, text, lines); });
+    node.addEventListener('mouseleave', untip);
+    node.addEventListener('blur', untip);
+    proofs.push({label: label, text: text, tool: origin.tool || '', reads: origin.reads || '', field: field || ''});
+    return node;
+  }
+  var bubble = document.getElementById('tip');
+  function tip(target, value, lines) {
+    bubble.textContent = '';
+    add(bubble, el('b', '', value));
+    lines.forEach(function (line, index) { if (line) add(bubble, el(index === lines.length - 1 ? 'code' : 'span', '', line)); });
+    var box = target.getBoundingClientRect();
+    var size = bubble.getBoundingClientRect();
+    var left = Math.min(Math.max(8, box.left + box.width / 2 - size.width / 2), window.innerWidth - size.width - 8);
+    var top = box.top - size.height - 10;
+    bubble.style.left = left + 'px';
+    bubble.style.top = (top < 8 ? box.bottom + 10 : top) + 'px';
+    bubble.className = 'on';
+  }
+  function untip() { bubble.className = ''; }
+
+  function icon(kind) {
+    var color = {good: 'var(--acc)', ok: 'var(--acc)', bad: 'var(--cut)', broken: 'var(--cut)', watch: 'var(--watch)'}[kind] || 'var(--dim)';
+    var path = {good: 'M3 8.5l3.2 3L13 4.5', ok: 'M3 8.5l3.2 3L13 4.5', bad: 'M4 4l8 8M12 4l-8 8', broken: 'M4 4l8 8M12 4l-8 8', watch: 'M8 3.2v6M8 12.4v.2', up: 'M8 13V3M3.8 7L8 3l4.2 4', down: 'M8 3v10M3.8 9L8 13l4.2-4', flat: 'M3 8h10'}[kind];
+    var node = svg('svg', {width: 13, height: 13, viewBox: '0 0 16 16', fill: 'none', 'aria-hidden': 'true'});
+    return add(node, svg('path', {d: path, stroke: color, 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round'}));
+  }
+  function chip(text, tone) {
+    var node = el('span', 'chip ' + (tone || 'neutral'));
+    if (tone && tone !== 'neutral') add(node, icon(tone));
+    return add(node, document.createTextNode(text));
+  }
+  function platformDot(platform) {
+    var node = el('span', 'dot');
+    var color = {meta: 'var(--meta)', google_ads: 'var(--google)', google: 'var(--google)', tiktok: 'var(--tiktok)'}[platform];
+    if (color) node.style.background = color;
+    return node;
+  }
+  function delta(value, previous, better, format) {
+    if (!isNumber(value) || !isNumber(previous) || previous === 0) return null;
+    var change = (value - previous) / Math.abs(previous) * 100;
+    var direction = Math.abs(change) < 0.05 ? 'flat' : change > 0 ? 'up' : 'down';
+    var node = el('span', 'delta');
+    var arrow = icon(direction);
+    var good = better === 'none' || !better || direction === 'flat' ? null : better === direction;
+    arrow.firstChild.setAttribute('stroke', good === null ? 'var(--dim2)' : good ? 'var(--acc)' : 'var(--cut)');
+    add(node, arrow, el('span', '', (change > 0 ? '+' : '') + number(change, 1) + (FR ? '\u00a0%' : '%')));
+    return add(node, el('small', '', WORDS.before + ' ' + show(previous, format)));
+  }
+
+  function section(order, title, lead) {
+    var node = el('section');
+    var wrap = add(node, el('div', 'wrap')).firstChild;
+    var head = add(el('div', 'idx'), el('span', 'n', String(order).padStart(2, '0')), el('h2', '', title));
+    if (lead) add(head, el('p', '', lead));
+    add(wrap, head);
+    node.body = wrap;
+    return node;
+  }
+
+  function hero() {
+    var headline = data.headline || {};
+    var node = el('header', 'hero');
+    var wrap = el('div', 'wrap');
+    var left = el('div', 'rise');
+    var kicker = add(el('div', 'kicker'), el('b', '', data.account), el('span', '', span(data.period)));
+    if (data.comparedWith) add(kicker, el('span', '', WORDS.versus + ' ' + span(data.comparedWith)));
+    add(left, kicker, title(headline));
+    if (headline.lead) add(left, el('p', 'lead', headline.lead));
+    if (data.notice) add(left, add(el('div', 'band notice'), el('span', '', data.notice)));
+    add(wrap, left);
+    var lead = (data.kpis || []).filter(function (kpi) { return kpi.hero; })[0];
+    if (lead) add(wrap, bigFigure(lead));
+    return add(node, wrap);
+  }
+  function title(headline) {
+    var node = el('h1');
+    var sentence = headline.sentence || '';
+    var at = headline.accent ? sentence.indexOf(headline.accent) : -1;
+    if (at < 0) return add(node, document.createTextNode(sentence));
+    return add(node, document.createTextNode(sentence.slice(0, at)), el('em', headline.tone === 'bad' ? 'bad' : '', headline.accent), document.createTextNode(sentence.slice(at + headline.accent.length)));
+  }
+  function bigFigure(kpi) {
+    var node = el('div', 'big rise');
+    node.style.animationDelay = '.12s';
+    var value = add(el('div', 'v'), figure(show(kpi.value, kpi.format), kpi.label, kpi.source, kpi.field));
+    return add(node, el('div', 'lbl', kpi.label), value, delta(kpi.value, kpi.previous, kpi.better, kpi.format));
+  }
+
+  function kpis() {
+    var list = (data.kpis || []).filter(function (kpi) { return !kpi.hero; });
+    if (!list.length) return null;
+    var grid = el('div', 'grid kpis');
+    list.forEach(function (kpi) {
+      add(grid, add(el('div'), el('div', 'lbl', kpi.label), add(el('div', 'v'), figure(show(kpi.value, kpi.format), kpi.label, kpi.source, kpi.field)), delta(kpi.value, kpi.previous, kpi.better, kpi.format)));
+    });
+    return add(el('div', 'wrap'), grid);
+  }
+
+  function mismatch() {
+    var gap = data.planMismatch;
+    if (!gap) return null;
+    var text = WORDS.mismatch + ' ' + (gap.by ? gap.by + ' ' : '') + WORDS.says + ' ' + signed(gap.announced) + ' ' + WORDS.perDay + ', ' + WORDS.linesSay + ' ' + signed(gap.min) + ' ' + WORDS.to + ' ' + signed(gap.max) + ' ' + WORDS.perDay + '. ' + WORDS.ask;
+    var node = el('div', 'band');
+    node.style.margin = '0 0 18px';
+    return add(node, icon('broken'), el('span', '', text));
+  }
+  function moneyOf(action) {
+    var change = action.dailyChange;
+    if (!change) return WORDS.unknown;
+    if (change.min === 0 && change.max === 0) return WORDS.same;
+    if (change.min === change.max) return signed(change.max) + ' ' + WORDS.perDay;
+    return WORDS.upTo + ' ' + signed(change.max) + ' ' + WORDS.perDay;
+  }
+  function actions(order) {
+    var list = data.actions || [];
+    if (!list.length) return null;
+    var node = section(order, WORDS.act, WORDS.actLead);
+    add(node.body, mismatch());
+    var plan = el('div', 'plan');
+    var column = el('div');
+    var side = el('aside', 'side');
+    list.forEach(function (action, index) { add(column, actionCard(action, index, function () { refreshPlan(side, list); })); });
+    refreshPlan(side, list);
+    add(node.body, add(plan, column, side));
+    return node;
+  }
+  function actionCard(action, index, changed) {
+    var card = el('article', 'act');
+    var body = el('div');
+    var tone = {raise: 'good', start: 'watch', lower: 'watch', pause: 'bad'}[action.kind];
+    add(body, chip(WORDS.kinds[action.kind], tone), el('h3', '', action.object), el('div', 'move', action.what), el('p', 'why', action.why));
+    var facts = el('dl');
+    add(facts, fact(WORDS.spend, figure(moneyOf(action), action.object, action.source, action.field)));
+    if (action.estimate) add(facts, fact(WORDS.effect, document.createTextNode(action.estimate)));
+    if (action.stopWhen) add(facts, fact(WORDS.stop, document.createTextNode(action.stopWhen)));
+    add(facts, fact(WORDS.by, document.createTextNode(action.by)));
+    var button = el('button', 'btn', WORDS.keep);
+    button.type = 'button';
+    button.setAttribute('aria-pressed', 'false');
+    button.addEventListener('click', function () {
+      kept[index] = !kept[index];
+      card.classList.toggle('kept', kept[index]);
+      button.textContent = kept[index] ? WORDS.kept : WORDS.keep;
+      button.classList.toggle('acc', kept[index]);
+      button.setAttribute('aria-pressed', String(kept[index]));
+      changed();
+    });
+    add(body, facts, button);
+    return add(card, el('div', 'no', index + 1), body);
+  }
+  function fact(name, value) { return add(el('div'), el('dt', '', name), add(el('dd'), value)); }
+  function refreshPlan(side, list) {
+    var chosen = list.filter(function (_, index) { return kept[index]; });
+    var known = chosen.filter(function (action) { return action.dailyChange; });
+    var low = known.reduce(function (sum, action) { return sum + action.dailyChange.min; }, 0);
+    var high = known.reduce(function (sum, action) { return sum + action.dailyChange.max; }, 0);
+    side.textContent = '';
+    add(side, el('div', 'lbl', WORDS.plan), el('div', 'v', chosen.length ? (low === high ? signed(high) : WORDS.upTo + ' ' + signed(high)) : '0 / ' + list.length));
+    add(side, el('p', '', chosen.length ? WORDS.perDay + ', ' + (high > 0 ? WORDS.more : high < 0 ? WORDS.less : WORDS.same) : WORDS.none));
+    if (isNumber(data.spendPerDay)) add(side, el('p', '', WORDS.spendNow + ' : ' + money(data.spendPerDay) + ' ' + WORDS.perDay));
+    if (known.length < chosen.length) add(side, add(el('p'), chip(WORDS.unknown, 'bad')));
+    var button = el('button', 'btn acc', WORDS.copy);
+    button.type = 'button';
+    button.disabled = !chosen.length;
+    button.addEventListener('click', function () { copy(decisions(list), button, WORDS.copy); });
+    add(side, button);
+  }
+  function decisions(list) {
+    function line(action) { return (list.indexOf(action) + 1) + '. ' + action.object + ' : ' + action.what + ' (' + moneyOf(action) + ')'; }
+    var yes = list.filter(function (_, index) { return kept[index]; }).map(line);
+    var no = list.filter(function (_, index) { return !kept[index]; }).map(line);
+    return [WORDS.keepMsg].concat(yes, no.length ? [WORDS.dropMsg].concat(no) : []).join('\n');
+  }
+  function copy(text, button, label) {
+    function done() { button.textContent = WORDS.copied; setTimeout(function () { button.textContent = label; }, 1600); }
+    function byHand() {
+      var area = el('textarea', 'sr');
+      area.value = text;
+      document.body.appendChild(area);
+      area.select();
+      var worked = document.execCommand('copy');
+      area.remove();
+      if (worked) done();
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, byHand);
+    else byHand();
+  }
+
+  function legend(pairs) {
+    var node = el('div', 'legend');
+    pairs.forEach(function (pair) {
+      var key = el('span', 'key');
+      key.style.background = pair[1];
+      add(node, add(el('span'), key, document.createTextNode(pair[0])));
+    });
+    return node;
+  }
+  function campaigns(order) {
+    var list = (data.campaigns || []).slice().sort(function (a, b) { return (b.spend || 0) - (a.spend || 0); });
+    if (!list.length) return null;
+    var node = section(order, WORDS.money, WORDS.moneyLead);
+    var top = Math.max.apply(null, list.map(function (row) { return Math.max(row.spend || 0, row.revenue || 0); })) || 1;
+    var table = el('table');
+    var head = el('tr');
+    [WORDS.campaign, '', WORDS.spend, WORDS.credited, WORDS.roas, WORDS.cps, WORDS.platRoas].forEach(function (name) { var cell = el('th', '', name); cell.scope = 'col'; add(head, cell); });
+    add(table, add(el('thead'), head));
+    var body = el('tbody');
+    list.forEach(function (row) { add(body, campaignRow(row, top)); });
+    add(node.body, legend([[WORDS.spend, 'var(--dim)'], [WORDS.credited, 'var(--acc)']]), add(el('div', 'scroll'), add(table, body)));
+    return node;
+  }
+  function campaignRow(row, top) {
+    var line = el('tr');
+    var name = add(el('td'), add(el('span', 'name'), platformDot(row.platform), add(el('span'), document.createTextNode(row.name), el('span', 'sub', [row.platformName || row.platform, row.note].filter(Boolean).join(', ')))));
+    if (row.verdict) add(name.firstChild.lastChild, add(el('span', 'sub'), chip(row.verdict, row.tone)));
+    var bars = el('td', 'bars');
+    [['bar', row.spend], ['bar s', row.revenue]].forEach(function (pair) {
+      var bar = el('i', pair[0]);
+      bar.style.width = Math.max(0, pair[1] || 0) / top * 100 + '%';
+      add(bars, bar);
+    });
+    add(line, name, bars);
+    [['spend', 'money'], ['revenue', 'money'], ['roas', 'ratio'], ['costPerSale', 'money'], ['platformRoas', 'ratio']].forEach(function (pair) {
+      var cell = el('td');
+      add(cell, isNumber(row[pair[0]]) ? figure(show(row[pair[0]], pair[1]), row.name, row.source, pair[0]) : document.createTextNode('-'));
+      add(line, cell);
+    });
+    return line;
+  }
+
+  function lineChart(series) {
+    var card = add(el('figure', 'card'), el('h3', '', series.label), el('p', 'hint', series.hint || ''));
+    var points = series.points;
+    var width = 520, height = 190, left = 8, right = 64, topEdge = 18, bottom = 26;
+    var values = points.map(function (point) { return point.value; });
+    var high = Math.max.apply(null, values), low = Math.min(0, Math.min.apply(null, values));
+    function x(index) { return left + index * (width - left - right) / (points.length - 1); }
+    function y(value) { return topEdge + (high - value) / ((high - low) || 1) * (height - topEdge - bottom); }
+    var chart = svg('svg', {viewBox: '0 0 ' + width + ' ' + height, width: '100%', role: 'img', 'aria-label': series.label});
+    [0, 0.5, 1].forEach(function (part) { add(chart, svg('line', {x1: left, x2: width - right, y1: y(low + (high - low) * part), y2: y(low + (high - low) * part), stroke: 'rgba(255,255,255,.08)'})); });
+    var path = points.map(function (point, index) { return (index ? 'L' : 'M') + x(index) + ' ' + y(point.value); }).join('');
+    add(chart, svg('path', {d: path + 'L' + x(points.length - 1) + ' ' + y(low) + 'L' + x(0) + ' ' + y(low) + 'Z', fill: 'var(--acc)', opacity: 0.1}));
+    add(chart, svg('path', {d: path, fill: 'none', stroke: 'var(--acc)', 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round'}));
+    points.forEach(function (point, index) {
+      if (index === 0 || index === points.length - 1 || points.length <= 6) {
+        var tick = svg('text', {x: x(index), y: height - 6, 'text-anchor': index === 0 ? 'start' : index === points.length - 1 ? 'end' : 'middle'});
+        tick.textContent = point.label;
+        add(chart, tick);
+      }
+    });
+    var last = points[points.length - 1];
+    add(chart, svg('circle', {cx: x(points.length - 1), cy: y(last.value), r: 5, fill: 'var(--acc)', stroke: 'var(--ink2)', 'stroke-width': 2}));
+    var label = svg('text', {x: x(points.length - 1) + 10, y: y(last.value) + 4, 'class': 'lab'});
+    label.textContent = show(last.value, series.format);
+    add(chart, label);
+    var cross = svg('line', {y1: topEdge, y2: height - bottom, stroke: 'rgba(255,255,255,.4)', opacity: 0});
+    add(chart, cross);
+    points.forEach(function (point, index) {
+      var step = (width - left - right) / (points.length - 1);
+      var zone = svg('rect', {x: x(index) - step / 2, y: 0, width: step, height: height, fill: 'transparent', tabindex: 0});
+      function on() { cross.setAttribute('x1', x(index)); cross.setAttribute('x2', x(index)); cross.setAttribute('opacity', 1); tip(zone, show(point.value, series.format), [series.label, point.label, (sources[series.source] || {}).tool]); }
+      function off() { cross.setAttribute('opacity', 0); untip(); }
+      zone.addEventListener('mouseenter', on); zone.addEventListener('focus', on);
+      zone.addEventListener('mouseleave', off); zone.addEventListener('blur', off);
+      add(chart, zone);
+      proofs.push({label: series.label + ', ' + point.label, text: show(point.value, series.format), tool: (sources[series.source] || {}).tool || '', reads: (sources[series.source] || {}).reads || '', field: series.field || ''});
+    });
+    return add(card, chart);
+  }
+  function trend(order) {
+    if (!(data.trend || []).length) return null;
+    var node = section(order, WORDS.trend);
+    var grid = el('div', 'two');
+    data.trend.forEach(function (series) { add(grid, lineChart(series)); });
+    add(node.body, grid);
+    return node;
+  }
+
+  function platforms(order) {
+    var list = data.platforms || [];
+    if (!list.length) return null;
+    var node = section(order, WORDS.gap, WORDS.gapLead);
+    var top = Math.max.apply(null, list.map(function (row) { return Math.max(row.claimed, row.credited); })) || 1;
+    var card = el('div', 'card');
+    add(card, legend([[WORDS.claimed, 'var(--dim)'], [WORDS.creditedBy, 'var(--acc)']]));
+    list.forEach(function (row) {
+      var item = el('div', 'gap');
+      var values = add(el('span'), figure(money(row.claimed), row.name + ', ' + WORDS.claimed, row.source, row.claimedField), document.createTextNode(' / '), figure(money(row.credited), row.name + ', ' + WORDS.creditedBy, row.source, row.creditedField));
+      add(item, add(el('div', 'row'), add(el('span', 'name'), platformDot(row.platform), document.createTextNode(row.name)), values));
+      [['bar', row.claimed], ['bar s', row.credited]].forEach(function (pair) {
+        var bar = el('i', pair[0]);
+        bar.style.width = Math.max(0, pair[1]) / top * 100 + '%';
+        add(item, bar);
+      });
+      add(card, item);
+    });
+    add(node.body, card);
+    return node;
+  }
+  function reliability(order) {
+    var list = data.reliability || [];
+    if (!list.length) return null;
+    var node = section(order, WORDS.rel);
+    var grid = el('div', 'grid rel');
+    list.forEach(function (item) {
+      var origin = sources[item.source] || {};
+      proofs.push({label: WORDS[item.level], text: item.text, tool: origin.tool || '', reads: origin.reads || '', field: ''});
+      add(grid, add(el('div'), add(el('div', 't'), icon(item.level), document.createTextNode(WORDS[item.level])), el('p', '', item.text), el('span', 'sub', origin.tool || '')));
+    });
+    add(node.body, grid);
+    return node;
+  }
+
+  function creativeHero() {
+    var headline = data.creativeHeadline;
+    if (!headline || !headline.sentence) return null;
+    var left = add(el('div', 'rise'), add(el('div', 'kicker'), el('b', '', data.account), el('span', '', span(headline.period || data.period))), title(headline));
+    if (headline.lead) add(left, el('p', 'lead', headline.lead));
+    return add(el('header', 'hero'), add(el('div', 'wrap'), left));
+  }
+  function ticks(top) {
+    var rough = top / 4;
+    var power = Math.pow(10, Math.floor(Math.log(rough) / Math.LN10));
+    var step = [1, 2, 2.5, 5, 10].filter(function (part) { return part * power >= rough; })[0] * power;
+    var list = [];
+    for (var value = 0; value <= top; value += step) list.push(value);
+    return list;
+  }
+  function creativeMap(order) {
+    var list = (data.creatives || []).filter(function (ad) { return ad.onMap !== false && isNumber(ad.spend) && isNumber(ad.roas); });
+    if (list.length < 3) return null;
+    var node = section(order, WORDS.map, WORDS.mapLead);
+    var width = 1120, height = 380, left = 46, right = 26, topEdge = 20, bottom = 40;
+    var maxSpend = Math.max.apply(null, list.map(function (ad) { return ad.spend; })) * 1.06;
+    var maxRoas = Math.max.apply(null, list.map(function (ad) { return ad.roas; }).concat(isNumber(data.accountRoas) ? [data.accountRoas] : [])) * 1.12 || 1;
+    function x(value) { return left + value / maxSpend * (width - left - right); }
+    function y(value) { return height - bottom - value / maxRoas * (height - topEdge - bottom); }
+    var chart = svg('svg', {viewBox: '0 0 ' + width + ' ' + height, width: '100%', role: 'img', 'aria-label': WORDS.map, style: 'min-width:640px'});
+    ticks(maxRoas).forEach(function (value) {
+      add(chart, svg('line', {x1: left, x2: width - right, y1: y(value), y2: y(value), stroke: 'rgba(255,255,255,.08)'}));
+      var tick = svg('text', {x: left - 8, y: y(value) + 4, 'text-anchor': 'end'});
+      tick.textContent = number(value, 1);
+      add(chart, tick);
+    });
+    ticks(maxSpend).forEach(function (value) {
+      var mark = svg('text', {x: x(value), y: height - 16, 'text-anchor': value === 0 ? 'start' : 'middle'});
+      mark.textContent = money(value, 0);
+      add(chart, mark);
+    });
+    if (isNumber(data.accountRoas)) {
+      add(chart, svg('line', {x1: left, x2: width - right, y1: y(data.accountRoas), y2: y(data.accountRoas), stroke: 'rgba(255,255,255,.4)'}));
+      var ref = svg('text', {x: width - right, y: y(data.accountRoas) - 6, 'text-anchor': 'end'});
+      ref.textContent = WORDS.account + ' ' + show(data.accountRoas, 'ratio');
+      add(chart, ref);
+    }
+    var taken = [];
+    list.slice().sort(function (a, b) { return b.spend - a.spend; }).forEach(function (ad) {
+      var strong = ad.tone === 'good';
+      var dot = svg('circle', {cx: x(ad.spend), cy: y(ad.roas), r: 7, fill: strong ? 'var(--acc)' : ad.tone === 'bad' ? 'var(--cut)' : 'var(--dim2)', stroke: 'var(--ink)', 'stroke-width': 2});
+      var zone = svg('circle', {cx: x(ad.spend), cy: y(ad.roas), r: 18, fill: 'transparent', tabindex: 0});
+      function on() { dot.setAttribute('r', 9); tip(zone, show(ad.roas, 'ratio') + ', ' + money(ad.spend), [ad.name, (sources[ad.source] || {}).tool, (sources[ad.source] || {}).reads]); }
+      function off() { dot.setAttribute('r', 7); untip(); }
+      zone.addEventListener('mouseenter', on); zone.addEventListener('focus', on);
+      zone.addEventListener('mouseleave', off); zone.addEventListener('blur', off);
+      add(chart, dot);
+      var clear = taken.every(function (other) { return Math.abs(other[0] - x(ad.spend)) > 190 || Math.abs(other[1] - y(ad.roas)) > 18; });
+      if (clear && taken.length < 5) {
+        var flip = x(ad.spend) > width - 260;
+        var label = svg('text', {x: x(ad.spend) + (flip ? -13 : 13), y: y(ad.roas) + 4, 'text-anchor': flip ? 'end' : 'start', 'class': 'lab'});
+        label.textContent = (ad.short || ad.name).slice(0, 30);
+        add(chart, label);
+        taken.push([x(ad.spend), y(ad.roas)]);
+      }
+      add(chart, zone);
+    });
+    var axis = svg('text', {x: left, y: 12});
+    axis.textContent = WORDS.roas;
+    add(chart, axis);
+    var card = add(el('div', 'card'), add(el('div', 'scroll'), chart));
+    add(node.body, card);
+    return node;
+  }
+  function creativeCards(order) {
+    var list = data.creatives || [];
+    if (!list.length) return null;
+    var node = section(order, WORDS.ads);
+    var grid = el('div', 'crea');
+    list.forEach(function (ad) { add(grid, adCard(ad)); });
+    add(node.body, grid);
+    return node;
+  }
+  function adCard(ad) {
+    var card = el('article', 'ad');
+    var art = el('div', 'art');
+    art.style.setProperty('--tone', {good: 'var(--acc)', bad: 'var(--cut)', watch: 'var(--watch)'}[ad.tone] || 'var(--dim)');
+    add(art, add(el('strong'), isNumber(ad.roas) ? figure(show(ad.roas, 'ratio'), ad.name + ', ' + WORDS.roas, ad.source, 'attributed.roas') : document.createTextNode('-')));
+    if (ad.verdict) add(art, chip(ad.verdict, ad.tone));
+    var facts = el('dl');
+    [[WORDS.spend, 'spend', 'money'], [WORDS.sales, 'sales', 'number'], [WORDS.cps, 'costPerSale', 'money'], [WORDS.freq, 'frequency', 'ratio'], [WORDS.ctr, 'ctr', 'percent'], [WORDS.platRoas, 'platformRoas', 'ratio']].forEach(function (item) {
+      if (isNumber(ad[item[1]])) add(facts, fact(item[0], figure(show(ad[item[1]], item[2]), ad.name + ', ' + item[0], ad.source, item[1])));
+    });
+    var inner = add(el('div', 'in'), add(el('h3', 'name'), platformDot(ad.platform), add(el('span'), document.createTextNode(ad.short || ad.name), el('span', 'sub', [ad.platformName || ad.platform, ad.format].filter(Boolean).join(', ')))), facts);
+    if (ad.reason) add(inner, add(el('p', 'q', ad.reason), el('small', '', ad.verdictBy || '')));
+    return add(card, art, inner);
+  }
+  function briefs(order) {
+    var list = data.briefs || [];
+    if (!list.length) return null;
+    var node = section(order, WORDS.next);
+    list.forEach(function (brief, index) {
+      var card = el('article', 'brief');
+      var left = add(el('div', 'l'), chip((index + 1) + (brief.format ? ' · ' + brief.format : ''), 'neutral'), el('div', 'hook', brief.hook), el('h3', '', brief.title));
+      var right = el('div', 'r');
+      if ((brief.beats || []).length) {
+        var beats = el('ol', 'beats');
+        brief.beats.forEach(function (beat, place) { add(beats, add(el('li'), el('b', '', String(place + 1).padStart(2, '0')), document.createTextNode(beat))); });
+        add(right, beats);
+      }
+      add(right, el('p', 'copy', brief.copy));
+      var facts = el('dl');
+      [[WORDS.isNew, brief.isNew], [WORDS.taken, brief.taken], [WORDS.judged, brief.judgedOn]].forEach(function (pair) { if (pair[1]) add(facts, fact(pair[0], document.createTextNode(pair[1]))); });
+      var button = el('button', 'btn', WORDS.copyText);
+      button.type = 'button';
+      button.style.marginTop = '18px';
+      button.addEventListener('click', function () { copy([brief.hook].concat(brief.beats || [], [brief.copy]).join('\n'), button, WORDS.copyText); });
+      proofs.push({label: brief.title, text: brief.hook, tool: (sources[brief.source] || {}).tool || '', reads: (sources[brief.source] || {}).reads || '', field: ''});
+      add(node.body, add(card, left, add(right, facts, button)));
+    });
+    return node;
+  }
+
+  function proofView() {
+    var node = section(1, WORDS.proof, WORDS.proofLead);
+    var table = el('table');
+    var head = el('tr');
+    [WORDS.figure, WORDS.shown, WORDS.tool, WORDS.reads, WORDS.where].forEach(function (name) { var cell = el('th', '', name); cell.scope = 'col'; cell.style.textAlign = 'left'; add(head, cell); });
+    var body = el('tbody');
+    proofs.forEach(function (proof) {
+      var line = el('tr');
+      [proof.label, proof.text, proof.tool, proof.reads, proof.field].forEach(function (text) { var cell = el('td', '', text); cell.style.textAlign = 'left'; cell.style.whiteSpace = 'normal'; add(line, cell); });
+      add(body, line);
+    });
+    add(node.body, add(el('div', 'scroll'), add(table, add(el('thead'), head), body)));
+    return node;
+  }
+
+  function view(id, builders) {
+    var node = el('main', 'view');
+    node.id = 'view-' + id;
+    node.setAttribute('role', 'tabpanel');
+    var order = 0;
+    builders.forEach(function (build) {
+      var part = build(order + 1);
+      if (!part) return;
+      if (part.tagName === 'SECTION') order += 1;
+      add(node, part);
+    });
+    return node;
+  }
+  function tabs(views) {
+    var list = el('div', 'tabs');
+    list.setAttribute('role', 'tablist');
+    function pick(id) {
+      views.forEach(function (item) {
+        item.node.classList.toggle('hidden', item.id !== id);
+        item.button.setAttribute('aria-selected', String(item.id === id));
+      });
+      window.scrollTo(0, 0);
+    }
+    views.forEach(function (item) {
+      item.button = el('button', '', item.name);
+      item.button.type = 'button';
+      item.button.setAttribute('role', 'tab');
+      item.button.setAttribute('aria-controls', item.node.id);
+      item.button.addEventListener('click', function () { pick(item.id); });
+      add(list, item.button);
+    });
+    list.pick = pick;
+    return list;
+  }
+
+  document.documentElement.lang = FR ? 'fr' : 'en';
+  document.title = 'Metrikia, ' + data.account;
+  var app = document.getElementById('app');
+  var views = [
+    {id: 'growth', name: WORDS.growth, node: view('growth', [hero, kpis, actions, reliability, trend, campaigns, platforms])},
+    {id: 'creative', name: WORDS.creative, node: view('creative', [creativeHero, creativeMap, creativeCards, briefs])}
+  ].filter(function (item) { return item.node.children.length; });
+  views.push({id: 'proof', name: WORDS.proof, node: view('proof', [proofView])});
+  var bar = add(el('nav', 'top'), el('div', 'wrap'));
+  var list = tabs(views);
+  add(bar.firstChild, add(el('span', 'mark', 'Metrikia'), el('i')), list);
+  add(app, bar);
+  views.forEach(function (item) { add(app, item.node); });
+  var foot = el('div', 'wrap');
+  add(foot, el('span', '', WORDS.readOn + ' ' + day(data.readOn)), data.checks ? el('span', 'ok', proofs.length + ' ' + WORDS.checks + ', ' + data.checks.crossChecks + ' ' + WORDS.cross) : chip(WORDS.unchecked, 'watch'));
+  add(app, add(el('footer'), foot));
+  list.pick(data.open === 'creative' && views.length > 2 ? 'creative' : views[0].id);
+}());
+</script>
+</body>
+</html>

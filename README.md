@@ -69,6 +69,7 @@ On claude.ai, open the plugin in **Customize**, **Plugins**, and turn its switch
 |-------|-------------|
 | `/metrikia:next-actions` | What do I do today? A few actions, in order |
 | `/metrikia:weekly-report` | How did the week go, and what do I decide for the next one? |
+| `/metrikia:dashboard` | Show me the account and the ads on one page, with the decisions and the proof of every figure |
 | `/metrikia:budget-optimizer` | Where do I put the money, line by line? |
 | `/metrikia:campaign-audit` | This campaign: does it hold my goal, what limits it, what do I change? |
 | `/metrikia:creative-analysis` | Which ads sell and why, which wear out, what do we make next? |
@@ -178,6 +179,7 @@ Ask your next question in the same conversation: the agent keeps the thread.
 ```bash
 ./scripts/sync-references.sh           # write the copies
 ./scripts/sync-references.sh --check   # exit 1 when a skill does not stand on its own
+python3 -m unittest discover -s tests/dashboard   # what the dashboard refuses
 ```
 
 The check refuses a copy that differs, is missing or has no source, a skill that does not point to its pages, and a variable or a path that only some clients resolve. Run it before every commit, and `claude plugin validate . --strict` from a clean checkout before a release.

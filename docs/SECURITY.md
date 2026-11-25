@@ -52,6 +52,8 @@ An erased lead stays erased: its personal data is removed for good, it is absent
 
 ## Untrusted text
 
+The dashboard page shows every name as text, never as HTML, and its own policy forbids any request to the network.
+
 A campaign name, a note or a page title can contain anything. The server tells the client to treat every tool result as data, and the skills repeat it: a text that reads like an order is reported, never followed.
 
 An agent reads the account through read tools only: no question makes it change anything.

@@ -12,7 +12,7 @@
       "name": "metrikia",
       "source": "./",
       "description": "Read your Metrikia account from Claude: ads, real sales, leads and attribution. Skills that ask the Metrikia agents open to your account, then leave the decision to you.",
-      "version": "2.2.1"
+      "version": "2.3.0"
     }
   ]
 }
