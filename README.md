@@ -127,7 +127,7 @@ The full reference is in [docs/TOOLS-REFERENCE.md](docs/TOOLS-REFERENCE.md).
 
 ## What the plugin runs and sends
 
-- At session start, in Claude Code and Cowork, it prints `hooks/session-context.md`, then runs `hooks/health-check.sh`. This script sends one request to `https://mcp.metrikia.io/api/v1/mcp`, with no credential and no data, to say whether the server answers.
+- At session start, in Claude Code and Cowork, it prints `hooks/session-context.md` and runs `hooks/health-check.sh`. This script sends one request to `https://mcp.metrikia.io/api/v1/mcp`, with no credential and no data, to say whether the server answers.
 - When Claude calls a Metrikia tool, the call goes to that same server with your sign-in: dates, ids, filters, the question for an agent, and the lead or the sale you ask it to write. The answer comes back to Claude.
 - It sends nothing anywhere else. It stores nothing and installs nothing.
 

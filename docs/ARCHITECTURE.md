@@ -104,7 +104,7 @@ The plugin holds the method. Thresholds, benchmarks and rules of thumb are not i
 
 ## Session start
 
-The hook prints `session-context.md` (the skills and when to use them, the tools, four reminders), then checks that the server answers. It runs on every session start and needs no key.
+The hook has two commands that run side by side: one prints `session-context.md` (the skills and when to use them, the tools, four reminders), the other checks that the server answers. It runs on every session start and needs no key.
 
 ## Where it runs
 
