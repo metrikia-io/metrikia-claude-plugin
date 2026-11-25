@@ -1,6 +1,6 @@
 ---
 name: budget-optimizer
-description: Use when the user asks where to put the ad money, which budgets to raise, lower or cut, how to split an amount between campaigns or platforms, or how to prepare the budgets of a sales event.
+description: Use when the user asks where to put the ad money, which budgets to raise, lower or cut, how to split an amount between campaigns or platforms, how to prepare the budgets of a sales event such as Black Friday, or says "où mettre mon budget".
 ---
 
 # Budget optimizer
