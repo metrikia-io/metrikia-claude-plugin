@@ -1,13 +1,19 @@
 {
   "name": "metrikia",
+  "displayName": "Metrikia",
   "description": "Read your Metrikia account from Claude: ads, real sales, leads and attribution. Skills that ask the Metrikia agents open to your account, then leave the decision to you. For media buyers, agencies and brands.",
   "version": "2.2.0",
   "author": {
     "name": "Metrikia",
-    "email": "support@metrikia.io"
+    "email": "support@metrikia.io",
+    "url": "https://metrikia.io"
   },
   "homepage": "https://metrikia.io/integrations/ai",
   "repository": "https://github.com/metrikia-io/metrikia-claude-plugin",
+  "documentationUrl": "https://github.com/metrikia-io/metrikia-claude-plugin#readme",
+  "supportUrl": "https://github.com/metrikia-io/metrikia-claude-plugin/issues",
+  "privacyPolicyUrl": "https://metrikia.io/privacy",
+  "termsOfServiceUrl": "https://metrikia.io/terms",
   "license": "MIT",
   "keywords": ["ads", "media-buying", "roi", "attribution", "mcp", "metrikia", "performance-marketing"],
   "skills": "./skills/"
