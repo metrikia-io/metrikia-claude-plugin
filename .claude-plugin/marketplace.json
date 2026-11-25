@@ -5,13 +5,13 @@
     "email": "support@metrikia.io"
   },
   "metadata": {
-    "description": "AI-powered ad tracking and ROI analysis: MCP server integration for Claude Code"
+    "description": "Your Metrikia account in Claude Code: ads, real sales, leads and attribution"
   },
   "plugins": [
     {
       "name": "metrikia",
       "source": "./",
-      "description": "Metrikia MCP plugin: Access campaigns, leads, attribution, and Metrikia Assistant insights directly from Claude.",
+      "description": "Read your Metrikia account from Claude: ads, real sales, leads and attribution. Skills that ask the Metrikia agents open to your account, then leave the decision to you.",
       "version": "2.2.0"
     }
   ]
