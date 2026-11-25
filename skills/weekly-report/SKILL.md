@@ -7,7 +7,9 @@ description: Use when the user asks how the week went, wants a weekly report or 
 
 The week on one screen: what is true, what moved, what to decide.
 
-First read `${CLAUDE_PLUGIN_ROOT}/references/working-method.md`, once per session (from this file, `../../references/working-method.md`). Language: the one the user writes in, otherwise `${user_config.language}`.
+First read `references/working-method.md`, in the folder of this skill. Every Metrikia skill holds the same page: once per session is enough. Answer in the language of the user.
+
+Three rules hold even without that page: every call on a period carries the same first and last day, the figures of an agent stay as written, and the user decides line by line. No Metrikia tool is listed: the account is not connected (`/mcp` in Claude Code, Customize then Connectors on claude.ai), give no figure and no advice of your own. `references/errors.md` has the steps, and what to do when a call is refused or empty.
 
 The week: the 7 days that end yesterday, or the one the user names, against the same number of days before.
 

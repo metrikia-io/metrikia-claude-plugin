@@ -7,7 +7,9 @@ description: Use when the user wants a few actions rather than a report, asks wh
 
 Three actions to take today, on real objects, each with its reason. Another number when the user gives one.
 
-First read `${CLAUDE_PLUGIN_ROOT}/references/working-method.md`, once per session (from this file, `../../references/working-method.md`). Language: the one the user writes in, otherwise `${user_config.language}`.
+First read `references/working-method.md`, in the folder of this skill. Every Metrikia skill holds the same page: once per session is enough. Answer in the language of the user.
+
+Three rules hold even without that page: every call on a period carries the same first and last day, the figures of an agent stay as written, and the user decides line by line. No Metrikia tool is listed: the account is not connected (`/mcp` in Claude Code, Customize then Connectors on claude.ai), give no figure and no advice of your own. `references/errors.md` has the steps, and what to do when a call is refused or empty.
 
 ## Ask the media buyer
 

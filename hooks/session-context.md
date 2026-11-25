@@ -37,4 +37,4 @@ Some accounts also list `ask_media_buyer`, `ask_creative_strategist` or `ask_dat
 - Present what a platform reports as its own count, next to what Metrikia credits.
 - The user decides. Nothing changes on an ad account or in Metrikia without an explicit yes, line by line.
 
-The full method is in `references/working-method.md` of this plugin. Every skill reads it.
+The full method is in the folder of each skill, in `references/working-method.md`.
