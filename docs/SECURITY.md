@@ -6,11 +6,11 @@ What the plugin and the MCP server commit to: sign-in, permissions, isolation, w
 
 The plugin signs in with OAuth 2.1 (Authorization Code with PKCE), as the MCP authorization specification defines it. There is no API key to configure or to store.
 
-On the first tool call, your client opens a Metrikia page in your browser. You sign in, read the permissions, and authorize or refuse. The client then keeps a short-lived access token and renews it on its own.
+When you connect, your client opens a Metrikia page in your browser: from `/mcp` in Claude Code, from **Customize**, **Connectors** on claude.ai. You sign in, read the permissions, and authorize or refuse. The client then keeps a short-lived access token and renews it on its own.
 
 - The access token is opaque: it carries no data, and the server can end it at any time.
 - A session is bound to one person and one account. Each member of a team signs in on their own.
-- To stop: clear the sign-in of the Metrikia server in your client (`/mcp` in Claude Code), or remove the plugin.
+- To stop: clear the sign-in of the Metrikia server in your client (`/mcp` in Claude Code, **Customize**, **Connectors** on claude.ai), or remove the plugin.
 
 ## Permissions
 
