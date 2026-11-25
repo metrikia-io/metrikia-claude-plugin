@@ -1,46 +1,18 @@
 #!/usr/bin/env bash
+# Says at session start whether the Metrikia server answers. One request, no
+# credential and no data in it: a 401 is the expected answer, the sign-in
+# happens in the client. No variable and no command substitution here, the
+# plugin directory holds for a reviewer a script that it cannot follow.
 set -uo pipefail
 
-if [ -z "${CLAUDE_PLUGIN_ROOT:-}" ]; then
-  echo "> **Warning:** CLAUDE_PLUGIN_ROOT is not set. Metrikia health check cannot run."
+if ! command -v curl > /dev/null 2>&1; then
+  echo "> **Note:** \`curl\` not found. Metrikia reachability check skipped."
   exit 0
 fi
 
-CONTEXT_FILE="${CLAUDE_PLUGIN_ROOT}/hooks/session-context.md"
-
-if [ ! -r "$CONTEXT_FILE" ]; then
-  echo "> **Warning:** Metrikia session-context.md is missing. Plugin may be misconfigured."
+if curl -s -o /dev/null -w "%{http_code}" --max-time 3 "https://mcp.metrikia.io/api/v1/mcp" 2> /dev/null | grep -qxE '2[0-9][0-9]|401'; then
+  echo "> **Sign-in:** not connected yet? Run \`/mcp\`, select the Metrikia server, then Authenticate. No API key."
   exit 0
 fi
 
-# Metrikia authenticates with OAuth 2.1 (no API key to configure). Claude Code
-# discovers the authorization server from the MCP endpoint and runs a one-time
-# browser sign-in on the first tool call. No METRIKIA_API_KEY is needed.
-
-if ! command -v curl &> /dev/null; then
-  cat "$CONTEXT_FILE"
-  echo ""
-  echo "> **Note:** \`curl\` not found. MCP reachability check skipped."
-  exit 0
-fi
-
-# Reachability probe (no credentials). A 401 is EXPECTED: it carries the OAuth
-# discovery challenge that Claude Code follows. Anything 2xx/401 means the
-# server is up; only network/5xx errors warrant a warning.
-HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}" --max-time 3 \
-  "https://mcp.metrikia.io/api/v1/mcp" 2>/dev/null) || HTTP_STATUS="000"
-
-case "$HTTP_STATUS" in
-  2*|401)
-    cat "$CONTEXT_FILE"
-    echo ""
-    echo "> **Sign-in:** the first Metrikia tool call opens a browser to connect your account (OAuth). No API key required."
-    ;;
-  *)
-    cat "$CONTEXT_FILE"
-    echo ""
-    echo "> **Warning:** Metrikia MCP server unreachable (HTTP $HTTP_STATUS). Tools may fail. Check your network connection."
-    ;;
-esac
-
-exit 0
+echo "> **Warning:** the Metrikia server does not answer. Its tools may fail. Check the network connection."
