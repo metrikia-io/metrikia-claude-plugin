@@ -6,3 +6,4 @@ __MACOSX/
 *.log
 .env
 .claude/
+__pycache__/

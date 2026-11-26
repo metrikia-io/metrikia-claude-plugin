@@ -1,7 +1,7 @@
 {
   "name": "metrikia",
   "description": "Read your Metrikia account from Cursor: ads, real sales, leads and attribution. Skills that ask the Metrikia agents open to your account, then leave the decision to you. For media buyers, agencies and brands.",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "author": {
     "name": "Metrikia",
     "email": "support@metrikia.io"

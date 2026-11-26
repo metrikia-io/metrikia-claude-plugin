@@ -38,6 +38,18 @@ What you tell the skill changes the answer: a stock-out, a promotion, a price, a
 
 **Then:** `/metrikia:campaign-audit` or `/metrikia:creative-analysis` on what the report points to.
 
+## /metrikia:dashboard
+
+**When:** a page to look at, or to show to a client or a team: the account, the ads, the decisions.
+
+**Asks:** the media buyer for the decisions, the creative strategist for the ads, both on the period of the page.
+
+**Reads:** the sync dates, the sales, spend and MER of the two periods, the cost per sale, the campaigns and the ads.
+
+**You get:** one page in three views. Growth: what is true, the decisions with the spend each one can add, what moved, where the money goes. Creative: the ads that sell, the ones that wear out, the next ones written out. Proof: every figure with the reading it comes from. A short script builds it: it refuses a figure with no source or that does not add up with the ones beside it, and loads nothing from the network.
+
+**Then:** keep or refuse lines on the page, copy your decisions and paste them in the chat.
+
 ## /metrikia:budget-optimizer
 
 **When:** where to put the money, which budgets to raise, lower or cut, how to split an amount, how to prepare a sales event.
@@ -114,6 +126,7 @@ What you tell the skill changes the answer: a stock-out, a promotion, a price, a
 |---|---|
 | Ten minutes in the morning | `/metrikia:next-actions` |
 | A meeting | `/metrikia:weekly-report` |
+| A page to show, or to keep open | `/metrikia:dashboard` |
 | A figure you do not believe | `/metrikia:trust-check` |
 | An amount to spend | `/metrikia:budget-optimizer` |
 | One campaign on your mind | `/metrikia:campaign-audit` |

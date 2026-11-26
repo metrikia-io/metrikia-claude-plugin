@@ -119,6 +119,7 @@ They read the same files. A sub-agent reads the method through `${CLAUDE_PLUGIN_
 
 ## Extending
 
+- **The dashboard**: the page is `skills/dashboard/assets/dashboard.html` plus the data, put in by `skills/dashboard/scripts/build_dashboard.py` (Python, no package). Change the look in the first, what is refused in the second, and run `python3 -m unittest discover -s tests/dashboard`.
 - **A skill**: add `skills/<name>/SKILL.md`, then run `./scripts/sync-references.sh`. Its description says when to use it. Its body points to `references/working-method.md` and `references/errors.md`, and holds one question, the reads it needs, the way to work without an agent and what to deliver.
 - **A shared page**: edit it in `references/`, then run the same script. `--check` refuses a copy that differs.
 - **A sub-agent**: add `agents/<name>.md`, with a pointer to `${CLAUDE_PLUGIN_ROOT}/references/working-method.md`.
